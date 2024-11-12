@@ -28,11 +28,24 @@ INSERT INTO DishOrder (DishOrderID, OrderID, DishID, Quantity) VALUES
 (1, 1, 1, 2),
 (2, 2, 2, 1),
 (3, 3, 3, 1),
-(4, 4, 4, 1);
+(4, 4, 4, 1)
+(5, 5, 5, 2),
+(6, 6, 6, 1),
+(7, 7, 7, 1),
+(8, 8, 8, 1)
+(9, 9, 9, 1),
+(10, 10, 10, 1);
 INSERT INTO Review (ReviewID, UserID, RestaurantID, Rating, Comment, DatePosted) VALUES
 (1, 1, 1, 4.5, 'Delicious pasta!', '2024-11-10'),
 (2, 2, 2, 4.8, 'Amazing sushi!', '2024-11-11'),
-(3, 3, 3, 3.2, 'The naan could have been cooked a little more', '2024-11-11');
+(3, 3, 3, 3.2, 'The naan could have been cooked a little more', '2024-11-11'),
+(4, 4, 4, 4.3, 'Best tacos in town!', '2024-11-10'),
+(5, 5, 5, 4.9, 'The shawarmas I can never forget!', '2024-11-11'),
+(6, 6, 6, 2.0, 'Honestly, very mid pizza', '2024-11-11'),
+(7, 7, 7, 5.0, 'The most authentic Korean cuisine ever!', '2024-11-10'),
+(8, 8, 8, 4.8, 'The flavor is too good to be true!', '2024-11-11'),
+(9, 9, 9, 3.5, 'The best fried chicken spot in Seattle!', '2024-11-11'),
+(10, 10, 10, 1.3 'The worst pho I've ever tried', '2024-11-11');
 
 INSERT INTO Favorites (FavoriteID, UserID, RestaurantID) VALUES
 (1, 1, 1),
