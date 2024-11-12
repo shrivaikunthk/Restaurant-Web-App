@@ -4,7 +4,7 @@ INSERT INTO Restaurant (RestaurantID, Name, Address, City, State, ZipCode, Websi
 (2, 'Sushi World', '456 Elm St', 'New York', 'NY', '10001', 'http://sushiworld.com', 4.7, 'Japanese'),
 (3, 'Desi Express', '789 Neem St', 'Madison', 'WI', '54900', 'http://desiexpress.com', 3.2, 'Indian'),
 (4, 'Taco Land', '101 Juana St', 'Reno', 'NV', '34291', 'http://tacoland.com', 4.9, 'Mexican'),
-(5, 'Shawarma Pointe', '112 Wisto St', 'Sacremonto', 'CA', '94501', 'http://shawarmapointe.com', 4.5, 'Middle Eastern'),
+(5, 'Shawarma Pointe', '112 Wisto St', 'Sacremento', 'CA', '94501', 'http://shawarmapointe.com', 4.5, 'Middle Eastern'),
 (6, 'Joe's Pizza', '134 Arizona St', 'Austin', 'TX', '17848', 'http://joespizza.com', 3.4, 'American'),
 (7, 'Kimchi Pot', '516 Goodwill St', 'Milpitas', 'CA', '95035', 'http://kimchipot.com', 5.0, 'Korean'),
 (8, 'Cajun Kitchen', '718 Nolin St', 'Miami', 'FL', '68630', 'http://cajunkitchen.com', 4.2, 'American'),
@@ -14,7 +14,15 @@ INSERT INTO Restaurant (RestaurantID, Name, Address, City, State, ZipCode, Websi
 
 INSERT INTO Orders (OrderID, UserID, OrderDate, OrderTotal, DeliveryAddress) VALUES
 (1, 1, '2024-10-20', 45.00, '123 Main St, San Francisco'),
-(2, 2, '2024-10-21', 60.00, '456 Elm St, New York');
+(2, 2, '2024-10-21', 60.00, '456 Elm St, New York')
+(3, 3, '2024-10-19', 60.00, '789 Neem St, Madison')
+(4, 4, '2024-10-23', 60.00, '101 Juana St, Reno')
+(5, 5, '2024-10-22', 60.00, '112 Wisto St, Sacremento')
+(6, 6, '2024-10-25', 60.00, '134 Arizona St, Austin')
+(7, 7, '2024-10-26', 60.00, '516 Goodwill St, Milpitas')
+(8, 8, '2024-10-26', 60.00, '718 Nolin St, Miami')
+(9, 9, '2024-10-28', 60.00, '920 Amelia St, Seattle')
+(10, 10, '2024-10-31', 60.00, '212 Sheets St, Las Vegas');
 
 INSERT INTO DishOrder (DishOrderID, OrderID, DishID, Quantity) VALUES
 (1, 1, 1, 2),
