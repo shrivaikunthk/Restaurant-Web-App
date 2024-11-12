@@ -49,7 +49,15 @@ INSERT INTO Review (ReviewID, UserID, RestaurantID, Rating, Comment, DatePosted)
 
 INSERT INTO Favorites (FavoriteID, UserID, RestaurantID) VALUES
 (1, 1, 1),
-(2, 2, 2);
+(2, 2, 2),
+(3, 3, 3),
+(4, 4, 4),
+(5, 5, 5),
+(6, 6, 6),
+(7, 7, 7),
+(8, 8, 8),
+(9, 9, 9),
+(10, 10, 10');
 
 INSERT INTO Reservation (ReservationID, UserID, RestaurantID, ReservationDate, ReservationTime, NumberOfGuests, SpecialRequests) VALUES
 (1, 1, 1, '2024-11-15', '18:00:00', 4, 'Window seat'),
