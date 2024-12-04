@@ -1,0 +1,15 @@
+<!-- templates/home.html -->
+
+{% extends "base.html" %}
+{% block title %}Home - Restaurant App{% endblock %}
+{% block content %}
+<h2>Restaurants within 50 miles</h2>
+<ul>
+    {% for restaurant in restaurants %}
+    <li>
+        <a href="{{ url_for('restaurant', restaurant_id=restaurant['RestaurantID']) }}">{{ restaurant['Name'] }}</a>
+        - {{ restaurant['CuisineType'] }} - Rating: {{ restaurant['Rating'] }} - Distance: {{ restaurant['Distance'] }} miles
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}

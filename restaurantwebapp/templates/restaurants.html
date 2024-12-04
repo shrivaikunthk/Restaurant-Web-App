@@ -1,0 +1,39 @@
+<!-- templates/restaurants.html -->
+
+{% extends "base.html" %}
+{% block title %}Search Restaurants{% endblock %}
+{% block content %}
+<h2>Search Restaurants</h2>
+<form method="post">
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.name.label }}<br>
+        {{ form.name() }}
+    </p>
+    <p>
+        {{ form.cuisine_type.label }}<br>
+        {{ form.cuisine_type() }}
+    </p>
+    <p>
+        {{ form.min_rating.label }}<br>
+        {{ form.min_rating() }}
+    </p>
+    <p>
+        {{ form.max_distance.label }}<br>
+        {{ form.max_distance() }}
+    </p>
+    <p>{{ form.submit() }}</p>
+</form>
+
+<h2>Search Results</h2>
+<ul>
+    {% for restaurant in restaurants %}
+    <li>
+        <a href="{{ url_for('restaurant', restaurant_id=restaurant['RestaurantID']) }}">{{ restaurant['Name'] }}</a>
+        - {{ restaurant['CuisineType'] }} - Rating: {{ restaurant['Rating'] }} - Distance: {{ restaurant['Distance'] }} miles
+    </li>
+    {% else %}
+    <li>No restaurants found.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

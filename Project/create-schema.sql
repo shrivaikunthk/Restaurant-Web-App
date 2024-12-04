@@ -1,6 +1,6 @@
 -- Table for Users
 CREATE TABLE User (
-    UserID INT PRIMARY KEY,
+    UserID INTEGER PRIMARY KEY,
     Name VARCHAR(100),
     Email VARCHAR(100) UNIQUE,
     Password VARCHAR(100),
@@ -10,7 +10,7 @@ CREATE TABLE User (
 
 -- Table for Restaurants
 CREATE TABLE Restaurant (
-    RestaurantID INT PRIMARY KEY,
+    RestaurantID INTEGER PRIMARY KEY,
     Name VARCHAR(100),
     Address VARCHAR(255),
     City VARCHAR(100),
@@ -23,7 +23,7 @@ CREATE TABLE Restaurant (
 
 -- Table for Orders
 CREATE TABLE Orders (
-    OrderID INT PRIMARY KEY,
+    OrderID INTEGER PRIMARY KEY,
     UserID INT,
     OrderDate DATETIME,
     OrderTotal DOUBLE,
@@ -33,7 +33,7 @@ CREATE TABLE Orders (
 
 -- Table for DishOrder (junction table between Order and Dish)
 CREATE TABLE DishOrder (
-    DishOrderID INT PRIMARY KEY,
+    DishOrderID INTEGER PRIMARY KEY,
     OrderID INT,
     DishID INT,
     Quantity INT,
@@ -43,7 +43,7 @@ CREATE TABLE DishOrder (
 
 -- Table for Reviews
 CREATE TABLE Review (
-    ReviewID INT PRIMARY KEY,
+    ReviewID INTEGER PRIMARY KEY,
     UserID INT,
     RestaurantID INT,
     Rating DOUBLE,
@@ -55,7 +55,7 @@ CREATE TABLE Review (
 
 -- Table for Favorites (junction table between User and Restaurant)
 CREATE TABLE Favorites (
-    FavoriteID INT PRIMARY KEY,
+    FavoriteID INTEGER PRIMARY KEY,
     UserID INT,
     RestaurantID INT,
     FOREIGN KEY (UserID) REFERENCES User(UserID),
@@ -64,7 +64,7 @@ CREATE TABLE Favorites (
 
 -- Table for Reservations
 CREATE TABLE Reservation (
-    ReservationID INT PRIMARY KEY,
+    ReservationID INTEGER PRIMARY KEY,
     UserID INT,
     RestaurantID INT,
     ReservationDate DATE,
@@ -77,7 +77,7 @@ CREATE TABLE Reservation (
 
 -- Table for Menu
 CREATE TABLE Menu (
-    MenuID INT PRIMARY KEY,
+    MenuID INTEGER PRIMARY KEY,
     RestaurantID INT,
     MenuName VARCHAR(100),
     Description TEXT,
@@ -86,7 +86,7 @@ CREATE TABLE Menu (
 
 -- Table for Dishes (associated with a Menu)
 CREATE TABLE Dish (
-    DishID INT PRIMARY KEY,
+    DishID INTEGER PRIMARY KEY,
     MenuID INT,
     DishName VARCHAR(100),
     Description TEXT,

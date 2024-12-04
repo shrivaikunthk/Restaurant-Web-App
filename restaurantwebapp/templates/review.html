@@ -1,0 +1,36 @@
+<!-- templates/review.html -->
+
+{% extends "base.html" %}
+{% block title %}Reviews - {{ restaurant['Name'] }}{% endblock %}
+{% block content %}
+<h2>Reviews for {{ restaurant['Name'] }}</h2>
+<ul>
+    {% for review in reviews %}
+    <li>
+        <strong>{{ review['Name'] }}</strong> ({{ review['DatePosted'] }}):<br>
+        Rating: {{ review['Rating'] }}<br>
+        {{ review['Comment'] }}
+    </li>
+    {% else %}
+    <li>No reviews yet.</li>
+    {% endfor %}
+</ul>
+
+{% if current_user.is_authenticated %}
+<h3>Leave a Review</h3>
+<form method="post">
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.rating.label }}<br>
+        {{ form.rating() }}
+    </p>
+    <p>
+        {{ form.comment.label }}<br>
+        {{ form.comment() }}
+    </p>
+    <p>{{ form.submit() }}</p>
+</form>
+{% else %}
+<p><a href="{{ url_for('login') }}">Log in</a> to leave a review.</p>
+{% endif %}
+{% endblock %}

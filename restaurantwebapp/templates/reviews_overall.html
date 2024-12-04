@@ -1,0 +1,20 @@
+<!-- templates/reviews_overall.html -->
+
+{% extends "base.html" %}
+{% block title %}Your Reviews{% endblock %}
+{% block content %}
+<h2>Your Reviews</h2>
+{% if reviews %}
+    <ul>
+        {% for review in reviews %}
+        <li>
+            <strong>{{ review['RestaurantName'] }}</strong> on {{ review['DatePosted'] }}<br>
+            Rating: {{ review['Rating'] }}<br>
+            Comment: {{ review['Comment'] }}
+        </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>You have not submitted any reviews yet.</p>
+{% endif %}
+{% endblock %}

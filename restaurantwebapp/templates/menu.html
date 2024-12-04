@@ -1,0 +1,18 @@
+<!-- templates/menu.html -->
+
+{% extends "base.html" %}
+{% block title %}{{ menu['MenuName'] }}{% endblock %}
+{% block content %}
+<h2>{{ menu['MenuName'] }}</h2>
+<p>{{ menu['Description'] }}</p>
+
+<h3>Dishes</h3>
+<ul>
+    {% for dish in dishes %}
+    <li>
+        <a href="{{ url_for('dish', dish_id=dish['DishID']) }}">{{ dish['DishName'] }}</a>
+        - ${{ "%.2f"|format(dish['Price']) }}
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}

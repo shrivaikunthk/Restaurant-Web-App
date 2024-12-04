@@ -1,0 +1,75 @@
+/* static/css/style.css */
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+header, footer {
+    background-color: #333;
+    color: white;
+    padding: 1em;
+}
+
+header h1, footer p {
+    margin: 0;
+}
+
+header h1 a {
+    color: white;
+    text-decoration: none;
+}
+
+nav {
+    margin-top: 0.5em;
+}
+
+nav a {
+    color: white;
+    margin-right: 1em;
+    text-decoration: none;
+}
+
+main {
+    padding: 1em;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+ul li {
+    margin-bottom: 0.5em;
+}
+
+.flashes {
+    list-style-type: none;
+    padding: 0;
+    color: green;
+}
+
+form label {
+    display: block;
+    margin-top: 0.5em;
+}
+
+form input, form textarea, form select {
+    width: 100%;
+    max-width: 400px;
+    margin-bottom: 1em;
+}
+
+form textarea {
+    height: 100px;
+}
+
+input[type="submit"], button {
+    width: auto;
+    padding: 0.5em 1em;
+}
+
+.error {
+    color: red;
+}
