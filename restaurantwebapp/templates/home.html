@@ -1,3 +1,4 @@
+<!-- templates/home.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,17 +11,35 @@
     {% include 'navbar_customer.html' %}
     <div class="container mt-4">
         <h1>Home Page</h1>
+        
+        <!-- Favorite Restaurants Section -->
         <div class="card mb-4">
             <div class="card-header">
-                <h3>Your Favorite Restaurant</h3>
+                <h3>Your Favorite Restaurants</h3>
             </div>
             <div class="card-body">
-                {% if favorite_rest %}
-                    <p><strong>{{ favorite_rest['Name'] }}</strong></p>
-                    <a href="{{ url_for('restaurant', restaurant_id=favorite_rest['RestaurantID']) }}" class="btn btn-info">View Details</a>
-                    <a href="{{ url_for('unset_favorite', restaurant_id=favorite_rest['RestaurantID']) }}" class="btn btn-danger">Remove Favorite</a>
+                {% if favorite_restaurants %}
+                    <div class="list-group">
+                        {% for restaurant in favorite_restaurants %}
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1">{{ restaurant['Name'] }}</h5>
+                                    <small>
+                                        <form action="{{ url_for('remove_favorite', restaurant_id=restaurant['RestaurantID']) }}" method="POST">
+                                            {{ form.hidden_tag() }}
+                                            <button type="submit" class="btn btn-sm btn-danger">Remove Favorite</button>
+                                        </form>
+                                    </small>
+                                </div>
+                                <p class="mb-1">{{ restaurant['CuisineType'] }} | Rating: {{ restaurant['Rating']|round(1) }}/5</p>
+                                <small>
+                                    <a href="{{ url_for('restaurant_detail', restaurant_id=restaurant['RestaurantID']) }}" class="btn btn-sm btn-info">View Details</a>
+                                </small>
+                            </div>
+                        {% endfor %}
+                    </div>
                 {% else %}
-                    <p>You have no favorite restaurant set. Visit a restaurant page to set one!</p>
+                    <p>You have no favorite restaurants. Browse restaurants to add your favorites!</p>
                     <a href="{{ url_for('restaurants') }}" class="btn btn-primary">Browse Restaurants</a>
                 {% endif %}
             </div>
@@ -70,12 +89,13 @@
             </div>
             <div class="card-body">
                 {% if upcoming_res %}
-                    <p>You have a reservation at <strong>{{ upcoming_res['RestaurantName'] }}</strong> on {{ upcoming_res['ReservationDate']|format_datetime }} at {{ upcoming_res['ReservationTime'] }} for {{ upcoming_res['NumberOfGuests'] }} guests.</p>
+                    <p>You have a reservation at <strong>{{ upcoming_res['RestaurantName'] }}</strong> on {{ upcoming_res['ReservationDate']|format_datetime }} at {{ upcoming_res['ReservationTime']|format_time }} for {{ upcoming_res['NumberOfGuests'] }} guests.</p>
                     <a href="{{ url_for('reservations_all') }}" class="btn btn-info">See More</a>
                 {% else %}
                     <p>No upcoming reservations.</p>
                 {% endif %}
             </div>
+        </div>
     </div>
     <script 
         src="https://code.jquery.com/jquery-3.5.1.slim.min.js" 

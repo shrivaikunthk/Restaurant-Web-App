@@ -92,7 +92,8 @@ if not os.path.exists(db_path):
         UserID INTEGER,
         RestaurantID INTEGER,
         FOREIGN KEY (UserID) REFERENCES User(UserID),
-        FOREIGN KEY (RestaurantID) REFERENCES Restaurant(RestaurantID)
+        FOREIGN KEY (RestaurantID) REFERENCES Restaurant(RestaurantID),
+        UNIQUE(UserID, RestaurantID)  -- Ensures a user cannot favorite the same restaurant multiple times
     );
 
     CREATE TABLE Reservation (
@@ -214,6 +215,7 @@ def update_restaurant_rating(restaurant_id):
         print(f"Error updating rating for RestaurantID {restaurant_id}: {e}")
     finally:
         conn.close()
+
 def is_restaurant_admin():
     return current_user.is_authenticated and current_user.role == 'restaurant_admin'
 
@@ -332,11 +334,14 @@ def home():
     # Else, proceed with customer dashboard
     conn = get_db_connection()
 
-    # Favorite Restaurant
-    fav = conn.execute('SELECT * FROM Favorites WHERE UserID = ?', (current_user.id,)).fetchone()
-    favorite_restaurant = None
-    if fav:
-        favorite_restaurant = conn.execute('SELECT * FROM Restaurant WHERE RestaurantID = ?', (fav['RestaurantID'],)).fetchone()
+    # Favorite Restaurants
+    favorites = conn.execute('''
+        SELECT Restaurant.*
+        FROM Favorites
+        JOIN Restaurant ON Favorites.RestaurantID = Restaurant.RestaurantID
+        WHERE Favorites.UserID = ?
+    ''', (current_user.id,)).fetchall()
+    favorite_restaurants = favorites  # This will be a list of restaurant rows
 
     # Last Order
     last_order = conn.execute('''
@@ -345,11 +350,27 @@ def home():
         ORDER BY datetime(OrderDate) DESC
         LIMIT 1
     ''', (current_user.id,)).fetchone()
+    
+    last_order_restaurant_name = None
+    if last_order:
+        # Fetch associated dishes to determine restaurant
+        dishes = conn.execute('''
+            SELECT Restaurant.Name as RestaurantName
+            FROM DishOrder
+            JOIN Dish ON DishOrder.DishID = Dish.DishID
+            JOIN Menu ON Dish.MenuID = Menu.MenuID
+            JOIN Restaurant ON Menu.RestaurantID = Restaurant.RestaurantID
+            WHERE DishOrder.OrderID = ?
+            LIMIT 1
+        ''', (last_order['OrderID'],)).fetchone()
+        if dishes:
+            last_order_restaurant_name = dishes['RestaurantName']
 
     # Last Review
     last_review = conn.execute('''
-        SELECT * FROM Review
-        WHERE UserID = ?
+        SELECT Review.*, Restaurant.Name as RestaurantName FROM Review
+        JOIN Restaurant ON Review.RestaurantID = Restaurant.RestaurantID
+        WHERE Review.UserID = ?
         ORDER BY datetime(DatePosted) DESC
         LIMIT 1
     ''', (current_user.id,)).fetchone()
@@ -357,20 +378,26 @@ def home():
     # Upcoming Reservation
     today = date.today().isoformat()
     upcoming_res = conn.execute('''
-        SELECT * FROM Reservation
-        WHERE UserID = ?
+        SELECT Reservation.*, Restaurant.Name as RestaurantName
+        FROM Reservation
+        JOIN Restaurant ON Reservation.RestaurantID = Restaurant.RestaurantID
+        WHERE Reservation.UserID = ?
           AND ReservationDate >= ?
-        ORDER BY ReservationDate ASC
+        ORDER BY ReservationDate ASC, ReservationTime ASC
         LIMIT 1
     ''', (current_user.id, today)).fetchone()
 
     conn.close()
 
+    form = EmptyForm()
+
     return render_template('home.html', 
-                           favorite_restaurant=favorite_restaurant, 
+                           favorite_restaurants=favorite_restaurants, 
                            last_order=last_order, 
+                           last_order_restaurant_name=last_order_restaurant_name,
                            last_review=last_review, 
-                           upcoming_res=upcoming_res)
+                           upcoming_res=upcoming_res,
+                           form=form)
 
 ### Customer Routes ###
 
@@ -432,7 +459,6 @@ def restaurant_detail(restaurant_id):
     
     conn.close()
 
-    # Instantiate EmptyForm for 'Add to Favorites' if needed
     form = EmptyForm()
 
     return render_template('restaurant_details.html', restaurant=restaurant, avg_rating=avg_rating, form=form)
@@ -603,6 +629,14 @@ def add_favorite(restaurant_id):
     form = EmptyForm()
     if form.validate_on_submit():
         conn = get_db_connection()
+        # Check if the restaurant exists
+        restaurant = conn.execute('SELECT * FROM Restaurant WHERE RestaurantID = ?', (restaurant_id,)).fetchone()
+        if not restaurant:
+            conn.close()
+            flash("Restaurant not found.", 'danger')
+            return redirect(url_for('restaurants'))
+        
+        # Check if already favorited
         existing = conn.execute('''
             SELECT * FROM Favorites
             WHERE UserID = ? AND RestaurantID = ?
@@ -618,7 +652,7 @@ def add_favorite(restaurant_id):
             except Exception as e:
                 flash("An error occurred while adding to favorites.", 'danger')
         else:
-            flash("Already in favorites.", 'info')
+            flash("Restaurant is already in your favorites.", 'info')
         conn.close()
     else:
         flash("Invalid form submission.", 'warning')
@@ -627,18 +661,29 @@ def add_favorite(restaurant_id):
 @app.route('/remove_favorite/<int:restaurant_id>', methods=['POST'])
 @login_required
 def remove_favorite(restaurant_id):
-    conn = get_db_connection()
-    try:
-        conn.execute('''
-            DELETE FROM Favorites
+    form = EmptyForm()
+    if form.validate_on_submit():
+        conn = get_db_connection()
+        # Check if the favorite exists
+        favorite = conn.execute('''
+            SELECT * FROM Favorites
             WHERE UserID = ? AND RestaurantID = ?
-        ''', (current_user.id, restaurant_id))
-        conn.commit()
-        flash("Removed from favorites.", 'success')
-    except Exception as e:
-        flash("An error occurred while removing from favorites.", 'danger')
-    finally:
+        ''', (current_user.id, restaurant_id)).fetchone()
+        if favorite:
+            try:
+                conn.execute('''
+                    DELETE FROM Favorites
+                    WHERE FavoriteID = ?
+                ''', (favorite['FavoriteID'],))
+                conn.commit()
+                flash("Removed from favorites.", 'success')
+            except Exception as e:
+                flash("An error occurred while removing from favorites.", 'danger')
+        else:
+            flash("Favorite not found.", 'info')
         conn.close()
+    else:
+        flash("Invalid form submission.", 'warning')
     return redirect(url_for('home'))
 
 ### Cart Routes ###
@@ -731,7 +776,7 @@ def add_to_cart_route(dish_id):
     form = AddToCartForm()
     if form.validate_on_submit():
         quantity = form.quantity.data
-        restaurant_id = form.restaurant_id.data
+        restaurant_id = form.restaurant_id.data if form.restaurant_id.data else None
     else:
         flash("Invalid form submission.", 'warning')
         return redirect(url_for('restaurants'))
@@ -1098,7 +1143,7 @@ def admin_edit_restaurant():
             flash("An error occurred while updating restaurant details.", 'danger')
         finally:
             conn.close()
-        return redirect(url_for('admin_edit_restaurant'))
+        return redirect(url_for('admin_edit_restaurant', restaurant_id=restaurant_id))
     
     # Pre-fill form with existing data
     form.name.data = restaurant['Name']
@@ -1433,7 +1478,7 @@ def create_restaurant_admin():
         try:
             conn.execute('''
                 INSERT INTO User (Name, Email, Password, Phone, Role, ManagedRestaurantID)
-                VALUES (?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?)
             ''', (
                 name,
                 email,
@@ -1609,8 +1654,14 @@ def admin_edit_review(review_id):
 def orders_all():
     conn = get_db_connection()
     orders = conn.execute('''
-        SELECT * FROM Orders
-        WHERE UserID = ?
+        SELECT Orders.*, Restaurant.Name as RestaurantName
+        FROM Orders
+        JOIN DishOrder ON Orders.OrderID = DishOrder.OrderID
+        JOIN Dish ON DishOrder.DishID = Dish.DishID
+        JOIN Menu ON Dish.MenuID = Menu.MenuID
+        JOIN Restaurant ON Menu.RestaurantID = Restaurant.RestaurantID
+        WHERE Orders.UserID = ?
+        GROUP BY Orders.OrderID
         ORDER BY datetime(OrderDate) DESC
     ''', (current_user.id,)).fetchall()
     conn.close()
@@ -1635,9 +1686,11 @@ def reviews_overall():
 def reservations_all():
     conn = get_db_connection()
     reservations = conn.execute('''
-        SELECT * FROM Reservation
+        SELECT Reservation.*, Restaurant.Name as RestaurantName
+        FROM Reservation
+        JOIN Restaurant ON Reservation.RestaurantID = Restaurant.RestaurantID
         WHERE UserID = ?
-        ORDER BY ReservationDate DESC
+        ORDER BY ReservationDate DESC, ReservationTime DESC
     ''', (current_user.id,)).fetchall()
     conn.close()
     return render_template('reservations_overall.html', reservations=reservations)
