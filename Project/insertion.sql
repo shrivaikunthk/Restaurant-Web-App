@@ -42,3 +42,4 @@ INSERT INTO Dish (DishID, MenuID, DishName, Description, Price) VALUES
 
 -- INSERT INTO Review (ReviewID, UserID, RestaurantID, Rating, Comment, DatePosted) VALUES
 -- (3, 1, 1, 4.5, 'WOW FOOD IG!', '2024-11-10');
+

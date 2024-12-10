@@ -1,0 +1,55 @@
+<!-- templates/admin_manage_menu.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Menus and Dishes</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+</head>
+<body>
+    {% include 'navbar.html' %}
+    <div class="container mt-4">
+        <h1>Manage Menus and Dishes</h1>
+        <h3>Restaurant: {{ restaurant['Name'] }}</h3>
+        <a href="{{ url_for('admin_add_menu', restaurant_id=restaurant['RestaurantID']) }}" class="btn btn-primary mb-3">Add New Menu</a>
+        {% for menu in menus %}
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4>{{ menu['MenuName'] }}</h4>
+                    <div>
+                        <a href="{{ url_for('admin_edit_menu', menu_id=menu['MenuID']) }}" class="btn btn-sm btn-warning">Edit Menu</a>
+                        <form action="{{ url_for('admin_delete_menu', menu_id=menu['MenuID']) }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this menu?');">Delete Menu</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p>{{ menu['Description'] }}</p>
+                    <h5>Dishes:</h5>
+                    <ul class="list-group">
+                        {% for dish in menu_dishes[menu['MenuID']] %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ dish['DishName'] }}</strong> - ${{ "%.2f"|format(dish['Price']) }}<br>
+                                    <small>{{ dish['Description'] }}</small>
+                                </div>
+                                <div>
+                                    <a href="{{ url_for('admin_edit_dish', dish_id=dish['DishID']) }}" class="btn btn-sm btn-warning">Edit</a>
+                                    <form action="{{ url_for('admin_delete_dish', dish_id=dish['DishID']) }}" method="POST" style="display:inline;">
+                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this dish?');">Delete</button>
+                                    </form>
+                                </div>
+                            </li>
+                        {% else %}
+                            <li class="list-group-item">No dishes found.</li>
+                        {% endfor %}
+                    </ul>
+                    <a href="{{ url_for('admin_add_dish', menu_id=menu['MenuID']) }}" class="btn btn-sm btn-success mt-3">Add New Dish</a>
+                </div>
+            </div>
+        {% else %}
+            <p>No menus found.</p>
+        {% endfor %}
+    </div>
+</body>
+</html>

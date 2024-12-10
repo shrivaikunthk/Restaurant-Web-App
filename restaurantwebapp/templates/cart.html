@@ -1,0 +1,64 @@
+<!-- templates/cart.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Restaurant App</title>
+    <!-- Include Bootstrap CSS for styling (optional) -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+</head>
+<body>
+    {% include 'navbar_customer.html' %}
+    <div class="card">
+    <div class="card-header bg-danger text-white">
+        <h2>Your Cart</h2>
+    </div>
+    <div class="card-body">
+        {% if cart_items %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Dish Name</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Item Total</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart_items %}
+                        <tr>
+                            <td>{{ item.dish_name }}</td>
+                            <td>${{ "%.2f"|format(item.price) }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>${{ "%.2f"|format(item.item_total) }}</td>
+                            <td>
+                                <form action="{{ url_for('remove_from_cart', dish_id=item.dish_id) }}" method="POST">
+                                    {{ form.hidden_tag() }}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <h3>Total: ${{ "%.2f"|format(total) }}</h3>
+
+            <h2>Checkout</h2>
+            <form action="{{ url_for('cart') }}" method="POST">
+                {{ form.hidden_tag() }}
+                <div class="form-group">
+                    <label for="delivery_address">Delivery Address:</label>
+                    <input type="text" id="delivery_address" name="delivery_address" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-success">Place Order</button>
+            </form>
+        {% else %}
+            <p>Your cart is empty.</p>
+        {% endif %}
+    </div>
+</div>
+</body>
+</html>
+
+

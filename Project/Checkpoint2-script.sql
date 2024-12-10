@@ -1,17 +1,17 @@
 -- Insertion Queries for Data
 
 DELETE FROM Restaurant;
-INSERT INTO Restaurant ( Name, Address, City, State, ZipCode, Website, Rating, CuisineType,Longitude, Latitude) VALUES
-( 'Pasta Palace', '123 Main St', 'San Francisco', 'CA', '94105', 'http://pastapalace.com', 4.5, 'Italian',-122.42,37.77),
-('Sushi World', '456 Elm St', 'New York', 'NY', '10001', 'http://sushiworld.com', 4.7, 'Japanese',-74.00,40.71),
-('Desi Express', '789 Neem St', 'Madison', 'WI', '54900', 'http://desiexpress.com', 3.2, 'Indian',-89.40,43.07),
-('Taco Land', '101 Juana St', 'Reno', 'NV', '34291', 'http://tacoland.com', 4.9, 'Mexican',-119.81,39.53),
-('Shawarma Pointe', '112 Wisto St', 'Sacramento', 'CA', '94501', 'http://shawarmapointe.com', 4.5, 'Middle Eastern',-121.49,38.58),
-('Joes Pizza', '134 Arizona St', 'Austin', 'TX', '17848', 'http://joespizza.com', 3.4, 'American',-97.74,30.27),
-('Kimchi Pot', '516 Goodwill St', 'Milpitas', 'CA', '95035', 'http://kimchipot.com', 5.0, 'Korean',-121.89,37.43),
-('Cajun Kitchen', '718 Nolin St', 'Miami', 'FL', '68630', 'http://cajunkitchen.com', 4.2, 'American',-80.19,25.77),
-('Chicken nGo', '920 Amelia St', 'Seattle', 'WA', '45627', 'http://chickenngo.com', 4.7, 'American',-122.33,47.60),
-('Pho Palate', '212 Sheets St', 'Las Vegas', 'NV', '57383', 'http://phopalet.com', 2.3, 'Vietnamese',-115.15,36.17);
+INSERT INTO Restaurant ( Name, Address, City, State, ZipCode, Website, Rating, CuisineType,Longitude, Latitude, NumberOfTables,MaxPeoplePerTable) VALUES
+( 'Pasta Palace', '123 Main St', 'San Francisco', 'CA', '94105', 'http://pastapalace.com', 4.5, 'Italian',-122.42,37.77,5,4),
+('Sushi World', '456 Elm St', 'New York', 'NY', '10001', 'http://sushiworld.com', 4.7, 'Japanese',-74.00,40.71,7,4),
+('Desi Express', '789 Neem St', 'Madison', 'WI', '54900', 'http://desiexpress.com', 3.2, 'Indian',-89.40,43.07,10,4),
+('Taco Land', '101 Juana St', 'Reno', 'NV', '34291', 'http://tacoland.com', 4.9, 'Mexican',-119.81,39.53,3,2),
+('Shawarma Pointe', '112 Wisto St', 'Sacramento', 'CA', '94501', 'http://shawarmapointe.com', 4.5, 'Middle Eastern',-121.49,38.58,5,3),
+('Joes Pizza', '134 Arizona St', 'Austin', 'TX', '17848', 'http://joespizza.com', 3.4, 'American',-97.74,30.27,3,4),
+('Kimchi Pot', '516 Goodwill St', 'Milpitas', 'CA', '95035', 'http://kimchipot.com', 5.0, 'Korean',-121.89,37.43,6,6),
+('Cajun Kitchen', '718 Nolin St', 'Miami', 'FL', '68630', 'http://cajunkitchen.com', 4.2, 'American',-80.19,25.77,5,5),
+('Chicken nGo', '920 Amelia St', 'Seattle', 'WA', '45627', 'http://chickenngo.com', 4.7, 'American',-122.33,47.60,5,5),
+('Pho Palate', '212 Sheets St', 'Las Vegas', 'NV', '57383', 'http://phopalet.com', 2.3, 'Vietnamese',-115.15,36.17,7,4);
 
 SELECT * FROM Restaurant;
 
@@ -62,23 +62,23 @@ INSERT INTO Favorites ( UserID, RestaurantID) VALUES
 ( 9, 9),
 ( 10, 10);
 
-INSERT INTO Reservation ( UserID, RestaurantID, ReservationDate, ReservationTime, NumberOfGuests, SpecialRequests) VALUES
-( 1, 1, '2024-11-15', '18:00:00', 4, 'Window seat'),
-( 2, 2, '2024-11-16', '19:00:00', 2, 'Quiet area'),
-( 3, 3, '2024-11-15', '18:00:00', 7, 'Big table'),
-( 4, 4, '2024-11-16', '19:00:00', 2, 'Corner table'),
-( 5, 5, '2024-11-15', '18:00:00', 4, 'Window seat'),
-( 6, 6, '2024-11-16', '19:00:00', 2, 'Private area'),
-( 7, 7, '2024-11-15', '18:00:00', 4, 'Booth'),
-( 8, 8, '2024-11-16', '19:00:00', 2, 'Quiet area'),
-(9, 9, '2024-11-15', '18:00:00', 4, 'Window seat'),
-(10, 10, '2024-11-16', '19:00:00', 2, 'Quiet area');
+INSERT INTO Reservation ( UserID, RestaurantID, ReservationDate, ReservationTime, ReservationEndTime, NumberOfGuests, SpecialRequests) VALUES
+( 1, 1, '2024-11-15', '18:00:00','19:00:00', 4, 'Window seat'),
+( 2, 2, '2024-11-16', '19:00:00', '20:00:00', 2, 'Quiet area'),
+( 3, 3, '2024-11-15', '18:00:00','19:00:00', 7, 'Big table'),
+( 4, 4, '2024-11-16', '19:00:00','20:00:00', 2, 'Corner table'),
+( 5, 5, '2024-11-15', '18:00:00','19:00:00', 4, 'Window seat'),
+( 6, 6, '2024-11-16', '19:00:00','20:00:00', 2, 'Private area'),
+( 7, 7, '2024-11-15', '18:00:00','19:00:00', 4, 'Booth'),
+( 8, 8, '2024-11-16', '19:00:00','20:00:00', 2, 'Quiet area'),
+(9, 9, '2024-11-15', '18:00:00','19:00:00', 4, 'Window seat'),
+(10, 10, '2024-11-16', '19:00:00','20:00:00', 2, 'Quiet area');
 
-INSERT INTO User(Name,Email,Password,Phone, Location) VALUES
-('Shri', 'sk@gmai.com','******','9082412654', 'merced'),
-('Kal', 'ka@gmail.com', '*****', '4085679697', 'fremont'),
-('Bob', 'b@gmail.com','******', '765432876', 'dallas'),
-('Alice','a@gmail.com','******','567898765', 'new jersey');
+INSERT INTO User(Name,Email,Password,Phone, Location,Longitude,Latitude, Role) VALUES
+('Shri', 'sk@gmai.com','******','9082412654', 'merced',-112.5,45.2,'customer'),
+('Kal', 'ka@gmail.com', '*****', '4085679697', 'fremont',-116.5,45.2,'customer'),
+('Bob', 'b@gmail.com','******', '765432876', 'dallas',-23.5,54.2,'customer'),
+('Alice','a@gmail.com','******','567898765', 'new jersey',-22.5,67.2,'customer');
 
 INSERT INTO Menu ( RestaurantID, MenuName, Description) VALUES
 ( 1, 'Dinner Menu', 'Our finest selection of Italian cuisine'),
@@ -146,7 +146,7 @@ SELECT UserID, ReservationDate, ReservationTime, NumberOfGuests, SpecialRequests
 FROM Reservation 
 WHERE RestaurantID = 1;
 
--- 9. Update Reservation 
+-- 9. . Reservation 
 UPDATE Reservation
 SET ReservationTime = '19:30:00', SpecialRequests = 'Quiet area', NumberOfGuests = 3
 WHERE ReservationID = 2;
@@ -278,3 +278,25 @@ SELECT COUNT(*) AS totalRes
 FROM Reservation 
 WHERE UserID = 2;
 
+-- CREATE TABLE Restaurant_new (
+--     RestaurantID INTEGER PRIMARY KEY AUTOINCREMENT,
+--     Name TEXT NOT NULL,
+--     Address TEXT,
+--     City TEXT,
+--     State TEXT,
+--     ZipCode TEXT,
+--     Website TEXT,
+--     Rating REAL, -- No DEFAULT clause
+--     CuisineType TEXT,
+--     Longitude REAL,
+--     Latitude REAL,
+--     NumberOfTables INTEGER,
+--     MaxPeoplePerTable INTEGER
+-- );
+
+UPDATE Restaurant
+SET Rating = (
+    SELECT AVG(Rating)
+    FROM Review
+    WHERE Review.RestaurantID = Restaurant.RestaurantID
+);

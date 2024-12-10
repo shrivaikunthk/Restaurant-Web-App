@@ -28,3 +28,7 @@ WHERE Review.RestaurantID IS NULL;
 SELECT UserID, OrderID, OrderTotal FROM Orders WHERE OrderTotal > 50;
 -- 30. Retrieve the highest-priced dishes per menu
 SELECT MenuID, DishID, MAX(Price) AS HighestPricedDish FROM Dish GROUP BY MenuID;
+
+SELECT "Restaurant"."RestaurantID", "Restaurant"."Name", "Restaurant"."Address", "Restaurant"."City", "Restaurant"."State", "Restaurant"."ZipCode", "Restaurant"."Website", "Restaurant"."Rating", "
+Restaurant"."CuisineType", "Restaurant"."Longitude", "Restaurant"."Latitude"
+FROM "Restaurant"

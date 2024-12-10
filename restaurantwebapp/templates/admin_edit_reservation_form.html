@@ -1,0 +1,48 @@
+<!-- templates/admin_edit_reservation_form.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Reservation</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+</head>
+<body>
+    {% include 'navbar.html' %}
+    <div class="container mt-4">
+        <h1>Edit Reservation</h1>
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                {{ form.reservation_date.label(class="form-label") }}
+                {{ form.reservation_date(class="form-control") }}
+                {% for error in form.reservation_date.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                {{ form.reservation_time.label(class="form-label") }}
+                {{ form.reservation_time(class="form-control") }}
+                {% for error in form.reservation_time.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                {{ form.number_of_guests.label(class="form-label") }}
+                {{ form.number_of_guests(class="form-control") }}
+                {% for error in form.number_of_guests.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                {{ form.special_requests.label(class="form-label") }}
+                {{ form.special_requests(class="form-control") }}
+                {% for error in form.special_requests.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <button type="submit" class="btn btn-success">{{ form.submit.label.text }}</button>
+            <a href="{{ url_for('admin_edit_reservation,reservation_id=reservation['ReservationID']') }}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</body>
+</html>

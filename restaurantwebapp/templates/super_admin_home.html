@@ -1,0 +1,27 @@
+<!-- templates/super_admin_home.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Super Admin Dashboard</title>
+    <!-- Include Bootstrap CSS for styling (optional) -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+</head>
+<body>
+    {% include 'navbar.html' %}
+    <div class="container mt-4">
+        <h1>Super Admin Dashboard</h1>
+        <div class="list-group">
+            <a href="{{ url_for('add_restaurant') }}" class="list-group-item list-group-item-action">
+                Add New Restaurant
+            </a>
+            <a href="{{ url_for('create_restaurant_admin') }}" class="list-group-item list-group-item-action">
+                Create Restaurant Admin
+            </a>
+            <a href="{{ url_for('admin_manage_reviews') }}" class="list-group-item list-group-item-action">
+                Manage Reviews
+            </a>
+        </div>
+    </div>
+</body>
+</html>

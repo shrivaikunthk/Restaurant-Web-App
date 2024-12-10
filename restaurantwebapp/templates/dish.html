@@ -1,9 +1,45 @@
 <!-- templates/dish.html -->
+ <!-- templates/super_admin_home.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Restaurant App</title>
+    <!-- Include Bootstrap CSS for styling (optional) -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+</head>
+<body>
+    {% include 'navbar_customer.html' %}
+    <div class="card">
+        <div class="card-header bg-secondary text-white">
+            <h2>{{ menu['MenuName'] }} Dishes</h2>
+        </div>
+        <div class="card-body">
+            {% if dishes %}
+                <div class="list-group">
+                    {% for dish in dishes %}
+                        <div class="list-group-item">
+                            <h5>{{ dish['DishName'] }} - ${{ "%.2f"|format(dish['Price']) }}</h5>
+                            <p>{{ dish['Description'] }}</p>
+                            <form action="{{ url_for('add_to_cart_route', dish_id=dish['DishID']) }}" method="POST" class="form-inline">
+                                {{ form.hidden_tag() }}
+                                <input type="hidden" name="restaurant_id" value="{{ restaurant_id }}">
+                                <div class="form-group mb-2">
+                                    <label for="quantity_{{ dish['DishID'] }}" class="mr-2">Quantity:</label>
+                                    <input type="number" id="quantity_{{ dish['DishID'] }}" name="quantity" value="1" min="1" class="form-control" required>
+                                </div>
+                                <button type="submit" class="btn btn-success mb-2 ml-3">Add to Cart</button>
+                            </form>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>No dishes in this menu.</p>
+            {% endif %}
+            <a href="{{ request.referrer or url_for('home') }}" class="btn btn-secondary mt-3">Back</a>
+        </div>
+    </div>
+</body>
+</html>
 
-{% extends "base.html" %}
-{% block title %}{{ dish['DishName'] }}{% endblock %}
-{% block content %}
-<h2>{{ dish['DishName'] }}</h2>
-<p>{{ dish['Description'] }}</p>
-<p>Price: ${{ "%.2f"|format(dish['Price']) }}</p>
-{% endblock %}
+

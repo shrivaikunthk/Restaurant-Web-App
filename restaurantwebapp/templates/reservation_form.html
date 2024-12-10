@@ -1,0 +1,41 @@
+
+<!-- templates/super_admin_home.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Restaurant App</title>
+    <!-- Include Bootstrap CSS for styling (optional) -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+</head>
+<body>
+    {% include 'navbar_customer.html' %}
+    <div class="card">
+        <div class="card-header bg-info text-white">
+            <h2>Reserve a Table at {{ restaurant['Name'] }}</h2>
+        </div>
+        <div class="card-body">
+<form method="post">
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.reservation_date.label }}<br>
+        {{ form.reservation_date() }}
+    </p>
+    <p>
+        {{ form.reservation_time.label }}<br>
+        {{ form.reservation_time() }}
+    </p>
+    <p>
+        {{ form.number_of_guests.label }}<br>
+        {{ form.number_of_guests() }}
+    </p>
+    <p>
+        {{ form.special_requests.label }}<br>
+        {{ form.special_requests(size=255) }}
+    </p>
+    <button type="submit" class="btn btn-primary">{{ form.submit.label.text }}</button>
+</form>
+<p><a href="{{ url_for('restaurant_detail', restaurant_id=restaurant['RestaurantID']) }}" class="btn btn-secondary mt-3" >Back</a></p>
+</div>
+</body>
+</html>

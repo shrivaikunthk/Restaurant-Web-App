@@ -1,75 +1,113 @@
 /* static/css/style.css */
 
+/* General Styles */
 body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
+    background-color: #f8f9fa;
 }
 
-header, footer {
-    background-color: #333;
-    color: white;
-    padding: 1em;
+.card {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-header h1, footer p {
+.card-header h2 {
     margin: 0;
 }
 
-header h1 a {
-    color: white;
-    text-decoration: none;
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
 }
 
-nav {
-    margin-top: 0.5em;
+.btn-primary:hover {
+    background-color: #0069d9;
+    border-color: #0062cc;
 }
 
-nav a {
-    color: white;
-    margin-right: 1em;
-    text-decoration: none;
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
 }
 
-main {
-    padding: 1em;
+.btn-success:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
 }
 
-ul {
-    list-style-type: none;
-    padding: 0;
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
 }
 
-ul li {
-    margin-bottom: 0.5em;
+.btn-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
 }
 
-.flashes {
-    list-style-type: none;
-    padding: 0;
-    color: green;
+.btn-info {
+    background-color: #17a2b8;
+    border-color: #17a2b8;
 }
 
-form label {
-    display: block;
-    margin-top: 0.5em;
+.btn-info:hover {
+    background-color: #138496;
+    border-color: #117a8b;
 }
 
-form input, form textarea, form select {
+.btn-warning {
+    background-color: #ffc107;
+    border-color: #ffc107;
+}
+
+.btn-warning:hover {
+    background-color: #e0a800;
+    border-color: #d39e00;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+}
+
+/* Navbar Styles */
+.navbar-brand {
+    font-weight: bold;
+}
+
+.nav-link {
+    font-size: 1.1em;
+}
+
+.nav-link:hover {
+    opacity: 0.8;
+}
+
+/* Form Styles */
+.form-label {
+    font-weight: 600;
+}
+
+.form-control {
+    border-radius: 0.25rem;
+}
+
+.form-control:focus {
+    box-shadow: none;
+    border-color: #007bff;
+}
+
+/* Table Styles */
+.table th, .table td {
+    vertical-align: middle;
+}
+
+/* Footer Styles */
+footer {
+    position: fixed;
+    bottom: 0;
     width: 100%;
-    max-width: 400px;
-    margin-bottom: 1em;
-}
-
-form textarea {
-    height: 100px;
-}
-
-input[type="submit"], button {
-    width: auto;
-    padding: 0.5em 1em;
-}
-
-.error {
-    color: red;
 }

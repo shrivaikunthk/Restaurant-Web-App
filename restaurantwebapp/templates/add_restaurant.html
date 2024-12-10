@@ -1,0 +1,98 @@
+<!-- templates/add_restaurant.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add New Restaurant</title>
+    <!-- Include Bootstrap CSS for styling (optional) -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+</head>
+<body>
+    {% include 'navbar.html' %}
+    <div class="container mt-4">
+        <h1>Add New Restaurant</h1>
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                {{ form.name.label(class="form-label") }}
+                {{ form.name(class="form-control") }}
+                {% for error in form.name.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                {{ form.address.label(class="form-label") }}
+                {{ form.address(class="form-control") }}
+                {% for error in form.address.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                {{ form.city.label(class="form-label") }}
+                {{ form.city(class="form-control") }}
+                {% for error in form.city.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                {{ form.state.label(class="form-label") }}
+                {{ form.state(class="form-control") }}
+                {% for error in form.state.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                {{ form.zipcode.label(class="form-label") }}
+                {{ form.zipcode(class="form-control") }}
+                {% for error in form.zipcode.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                {{ form.website.label(class="form-label") }}
+                {{ form.website(class="form-control") }}
+                {% for error in form.website.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                {{ form.cuisine_type.label(class="form-label") }}
+                {{ form.cuisine_type(class="form-control") }}
+                {% for error in form.cuisine_type.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                {{ form.longitude.label(class="form-label") }}
+                {{ form.longitude(class="form-control") }}
+                {% for error in form.longitude.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                {{ form.latitude.label(class="form-label") }}
+                {{ form.latitude(class="form-control") }}
+                {% for error in form.latitude.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                {{ form.number_of_tables.label(class="form-label") }}
+                {{ form.number_of_tables(class="form-control") }}
+                {% for error in form.number_of_tables.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                {{ form.max_people_per_table.label(class="form-label") }}
+                {{ form.max_people_per_table(class="form-control") }}
+                {% for error in form.max_people_per_table.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <button type="submit" class="btn btn-success">{{ form.submit.label.text }}</button>
+            <a href="{{ url_for('super_admin_home') }}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</body>
+</html>

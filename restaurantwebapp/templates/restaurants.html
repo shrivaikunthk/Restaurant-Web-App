@@ -1,39 +1,58 @@
 <!-- templates/restaurants.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RestaurantApp</title>
+    <!-- Include Bootstrap CSS for styling (optional) -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+</head>
+<body>
+    {% include 'navbar_customer.html' %}
+    <div class="container mt-4">
+        <h1>Find Restaurants</h1>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('restaurants') }}" class="mb-4">
+                {{ form.hidden_tag() }}
+                <div class="form-row">
+                    <div class="form-group col-md-3">
+                        {{ form.name.label(class="form-label") }}
+                        {{ form.name(class="form-control") }}
+                    </div>
+                    <div class="form-group col-md-3">
+                        {{ form.cuisine_type.label(class="form-label") }}
+                        {{ form.cuisine_type(class="form-control") }}
+                    </div>
+                    <div class="form-group col-md-2">
+                        {{ form.min_rating.label(class="form-label") }}
+                        {{ form.min_rating(class="form-control") }}
+                    </div>
+                    <div class="form-group col-md-3">
+                        {{ form.city.label(class="form-label") }}
+                        {{ form.city(class="form-control") }}
+                    </div>
+                    <div class="form-group col-md-1 align-self-end">
+                        {{ form.submit(class="btn btn-success") }}
+                    </div>
+                </div>
+            </form>
+    
+            <h2>Available Restaurants</h2>
+            {% if restaurants %}
+                <div class="list-group">
+                    {% for restaurant in restaurants %}
+                        <a href="{{ url_for('restaurant_detail', restaurant_id=restaurant.RestaurantID) }}" class="list-group-item list-group-item-action">
+                            <h5 class="mb-1">{{ restaurant.Name }}</h5>
+                            <p class="mb-1">{{ restaurant.CuisineType }}</p>
+                            <small>Rating: {{ restaurant.Rating }}/5</small>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>No restaurants found matching your criteria.</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
 
-{% extends "base.html" %}
-{% block title %}Search Restaurants{% endblock %}
-{% block content %}
-<h2>Search Restaurants</h2>
-<form method="post">
-    {{ form.hidden_tag() }}
-    <p>
-        {{ form.name.label }}<br>
-        {{ form.name() }}
-    </p>
-    <p>
-        {{ form.cuisine_type.label }}<br>
-        {{ form.cuisine_type() }}
-    </p>
-    <p>
-        {{ form.min_rating.label }}<br>
-        {{ form.min_rating() }}
-    </p>
-    <p>
-        {{ form.max_distance.label }}<br>
-        {{ form.max_distance() }}
-    </p>
-    <p>{{ form.submit() }}</p>
-</form>
-
-<h2>Search Results</h2>
-<ul>
-    {% for restaurant in restaurants %}
-    <li>
-        <a href="{{ url_for('restaurant', restaurant_id=restaurant['RestaurantID']) }}">{{ restaurant['Name'] }}</a>
-        - {{ restaurant['CuisineType'] }} - Rating: {{ restaurant['Rating'] }} - Distance: {{ restaurant['Distance'] }} miles
-    </li>
-    {% else %}
-    <li>No restaurants found.</li>
-    {% endfor %}
-</ul>
-{% endblock %}

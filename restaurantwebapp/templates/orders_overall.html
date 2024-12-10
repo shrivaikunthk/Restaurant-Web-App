@@ -1,4 +1,4 @@
-<!-- templates/reviews_overall.html -->
+<!-- templates/orders_overall.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,23 +10,22 @@
 <body>
     {% include 'navbar_customer.html' %}
     <div class="card">
-        <div class="card-header bg-success text-white">
-            <h2>Your Reviews</h2>
+        <div class="card-header bg-warning text-white">
+            <h2>Your Orders</h2>
         </div>
         <div class="card-body">
-            {% if reviews %}
+            {% if orders %}
                 <div class="list-group">
-                    {% for review in reviews %}
+                    {% for order in orders %}
                         <div class="list-group-item">
-                            <h5>{{ review['Name'] }}</h5>
-                            <p><small>{{ review['DatePosted']|format_datetime }}</small></p>
-                            <p>Rating: {{ review['Rating'] }}/5</p>
-                            <p>{{ review['Comment'] }}</p>
+                            <p>Order Date: {{ order['OrderDate']|format_datetime }}</p>
+                            <p>Total: ${{ "%.2f"|format(order['OrderTotal']) }}</p>
+                            <p>Delivery Address: {{ order['DeliveryAddress'] }}</p>
                         </div>
                     {% endfor %}
                 </div>
             {% else %}
-                <p>You have not submitted any reviews yet.</p>
+                <p>No orders found.</p>
             {% endif %}
             <!-- <a href="{{ url_for('home') }}" class="btn btn-secondary mt-3">Back to Home</a> -->
         </div>

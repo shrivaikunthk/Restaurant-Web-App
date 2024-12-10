@@ -1,18 +1,38 @@
 <!-- templates/menu.html -->
-
-{% extends "base.html" %}
-{% block title %}{{ menu['MenuName'] }}{% endblock %}
-{% block content %}
-<h2>{{ menu['MenuName'] }}</h2>
-<p>{{ menu['Description'] }}</p>
-
-<h3>Dishes</h3>
-<ul>
-    {% for dish in dishes %}
-    <li>
-        <a href="{{ url_for('dish', dish_id=dish['DishID']) }}">{{ dish['DishName'] }}</a>
-        - ${{ "%.2f"|format(dish['Price']) }}
-    </li>
-    {% endfor %}
-</ul>
-{% endblock %}
+ <!-- templates/super_admin_home.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Restaurant App</title>
+    <!-- Include Bootstrap CSS for styling (optional) -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+</head>
+<body>
+    {% include 'navbar_customer.html' %}
+    <div class="card">
+        <div class="card-header bg-info text-white">
+            <h2>Menus</h2>
+        </div>
+        <div class="card-body">
+            {% if menus %}
+                <div class="list-group">
+                    {% for m in menus %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ m['MenuName'] }}</strong>: {{ m['Description'] }}
+                            </div>
+                            <div>
+                                <a href="{{ url_for('view_menu', menu_id=m['MenuID']) }}" class="btn btn-primary btn-sm">View Dishes</a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>No menus available for this restaurant.</p>
+            {% endif %}
+            <a href="{{ url_for('restaurant_detail', restaurant_id=restaurant_id) }}" class="btn btn-secondary mt-3">Back</a>
+        </div>
+    </div>
+</body>
+</html>

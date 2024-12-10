@@ -1,0 +1,33 @@
+<!-- templates/reservation_overall.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Restaurant App</title>
+    <!-- Include Bootstrap CSS for styling (optional) -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+</head>
+<body>
+    {% include 'navbar_customer.html' %}
+    <div class="card">
+        <div class="card-header bg-success text-white">
+            <h2>Your Reservations</h2>
+        </div>
+        <div class="card-body">
+            <ul>
+                {% for res in reservations %}
+                <li>
+                    <strong>Date:</strong> {{ res['ReservationDate'] }}<br>
+                    <strong>Time:</strong> {{ res['ReservationTime']|format_time }}<br>
+                    <strong>Guests:</strong> {{ res['NumberOfGuests'] }}<br>
+                    <strong>Requests:</strong> {{ res['SpecialRequests'] or 'None' }}
+                </li>
+                {% else %}
+                <li>No reservations found.</li>
+                {% endfor %}
+            </ul>
+            <!-- <a href="{{ url_for('home') }}" class="btn btn-secondary mt-3">Back to Home</a> -->
+        </div>
+    </div>
+</body>
+</html>

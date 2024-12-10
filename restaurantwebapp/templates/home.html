@@ -1,15 +1,81 @@
-<!-- templates/home.html -->
-
-{% extends "base.html" %}
-{% block title %}Home - Restaurant App{% endblock %}
-{% block content %}
-<h2>Restaurants within 50 miles</h2>
-<ul>
-    {% for restaurant in restaurants %}
-    <li>
-        <a href="{{ url_for('restaurant', restaurant_id=restaurant['RestaurantID']) }}">{{ restaurant['Name'] }}</a>
-        - {{ restaurant['CuisineType'] }} - Rating: {{ restaurant['Rating'] }} - Distance: {{ restaurant['Distance'] }} miles
-    </li>
-    {% endfor %}
-</ul>
-{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Restaurant App</title>
+    <!-- Include Bootstrap CSS for styling (optional) -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+</head>
+<body>
+    {% include 'navbar_customer.html' %}
+    <div class="container mt-4">
+        <h1>Home Page</h1>
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3>Your Favorite Restaurant</h3>
+            </div>
+            <div class="card-body">
+                {% if favorite_rest %}
+                    <p><strong>{{ favorite_rest['Name'] }}</strong></p>
+                    <a href="{{ url_for('restaurant', restaurant_id=favorite_rest['RestaurantID']) }}" class="btn btn-info">View Details</a>
+                    <a href="{{ url_for('unset_favorite', restaurant_id=favorite_rest['RestaurantID']) }}" class="btn btn-danger">Remove Favorite</a>
+                {% else %}
+                    <p>You have no favorite restaurant set. Visit a restaurant page to set one!</p>
+                    <a href="{{ url_for('restaurants') }}" class="btn btn-primary">Browse Restaurants</a>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Last Order Section -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3>Last Order</h3>
+            </div>
+            <div class="card-body">
+                {% if last_order %}
+                    <p>You last ordered on {{ last_order['OrderDate']|format_datetime }}. Total: ${{ "%.2f"|format(last_order['OrderTotal']) }}</p>
+                    {% if last_order_restaurant_name %}
+                        <p>From: {{ last_order_restaurant_name }}</p>
+                    {% else %}
+                        <p>Restaurant info not available.</p>
+                    {% endif %}
+                    <a href="{{ url_for('orders_all') }}" class="btn btn-info">See More</a>
+                {% else %}
+                    <p>No orders found.</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Last Review Section -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3>Last Review</h3>
+            </div>
+            <div class="card-body">
+                {% if last_review %}
+                    <p>Your last review was for <strong>{{ last_review['RestaurantName'] }}</strong> on {{ last_review['DatePosted']|format_datetime }}.</p>
+                    <p>Rating: {{ last_review['Rating'] }}/5</p>
+                    <p>{{ last_review['Comment'] }}</p>
+                    <a href="{{ url_for('reviews_overall') }}" class="btn btn-info">See More</a>
+                {% else %}
+                    <p>No reviews found.</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Upcoming Reservation Section -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3>Upcoming Reservation</h3>
+            </div>
+            <div class="card-body">
+                {% if upcoming_res %}
+                    <p>You have a reservation at <strong>{{ upcoming_res['RestaurantName'] }}</strong> on {{ upcoming_res['ReservationDate']|format_datetime }} at {{ upcoming_res['ReservationTime'] }} for {{ upcoming_res['NumberOfGuests'] }} guests.</p>
+                    <a href="{{ url_for('reservations_all') }}" class="btn btn-info">See More</a>
+                {% else %}
+                    <p>No upcoming reservations.</p>
+                {% endif %}
+            </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!-- templates/admin_manage_reviews.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Reviews</title>
+    <!-- Bootstrap CSS for styling -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+</head>
+<body>
+    {% include 'navbar.html' %}
+    <div class="container mt-4">
+        <h1>Manage Reviews</h1>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Reviewer</th>
+                    <th>Restaurant</th>
+                    <th>Rating</th>
+                    <th>Comment</th>
+                    <th>Date Posted</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for review in reviews %}
+                    <tr>
+                        <td>{{ review['ReviewerName'] }}</td>
+                        <td>{{ review['RestaurantName'] }}</td>
+                        <td>{{ review['Rating'] }}</td>
+                        <td>{{ review['Comment'] }}</td>
+                        <td>{{ review['DatePosted'] | format_datetime }}</td>
+                        <td>
+                            <form action="{{ url_for('admin_delete_review', review_id=review['ReviewID']) }}" method="POST" style="display:inline;">
+                                {{ form.hidden_tag() }}
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this review?');">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="6">No reviews found.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

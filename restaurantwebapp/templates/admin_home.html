@@ -1,0 +1,36 @@
+<!-- templates/admin_home.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <!-- Include Bootstrap CSS for styling (optional) -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+</head>
+<body>
+    {% include 'navbar.html' %}
+    <div class="container mt-4">
+        <h1>Admin Dashboard</h1>
+        {% if restaurant %}
+            <h3>Managing Restaurant: {{ restaurant['Name'] }}</h3>
+        {% endif %}
+        <div class="list-group">
+            <!-- Corrected Link: Manage Reservations -->
+            <a href="{{ url_for('admin_manage_reservation') }}" class="list-group-item list-group-item-action">
+                Manage Reservations
+            </a>
+            <a href="{{ url_for('admin_edit_restaurant') }}" class="list-group-item list-group-item-action">
+                Edit Restaurant Details
+            </a>
+            <a href="{{ url_for('admin_manage_menu') }}" class="list-group-item list-group-item-action">
+                Manage Menus and Dishes
+            </a>
+            {% if current_user.role == 'super_admin' %}
+                <a href="{{ url_for('create_restaurant_admin') }}" class="list-group-item list-group-item-action">
+                    Create Restaurant Admin
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

@@ -1,36 +1,48 @@
 <!-- templates/review.html -->
-
-{% extends "base.html" %}
-{% block title %}Reviews - {{ restaurant['Name'] }}{% endblock %}
-{% block content %}
-<h2>Reviews for {{ restaurant['Name'] }}</h2>
-<ul>
-    {% for review in reviews %}
-    <li>
-        <strong>{{ review['Name'] }}</strong> ({{ review['DatePosted'] }}):<br>
-        Rating: {{ review['Rating'] }}<br>
-        {{ review['Comment'] }}
-    </li>
-    {% else %}
-    <li>No reviews yet.</li>
-    {% endfor %}
-</ul>
-
-{% if current_user.is_authenticated %}
-<h3>Leave a Review</h3>
-<form method="post">
-    {{ form.hidden_tag() }}
-    <p>
-        {{ form.rating.label }}<br>
-        {{ form.rating() }}
-    </p>
-    <p>
-        {{ form.comment.label }}<br>
-        {{ form.comment() }}
-    </p>
-    <p>{{ form.submit() }}</p>
-</form>
-{% else %}
-<p><a href="{{ url_for('login') }}">Log in</a> to leave a review.</p>
-{% endif %}
-{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Restaurant App</title>
+    <!-- Include Bootstrap CSS for styling (optional) -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+</head>
+<body>
+    {% include 'navbar_customer.html' %}
+    <div class="card">
+        <div class="card-header bg-info text-white">
+            <h2>Reviews for {{ restaurant['Name'] }}</h2>
+        </div>
+        <div class="card-body">
+            <ul class="list-group mb-4">
+                {% for rv in reviews %}
+                    <li class="list-group-item">
+                        <h5>{{ rv['Name'] }}</h5>
+                        <p><small>{{ rv['DatePosted']|format_datetime }}</small></p>
+                        <p>Rating: {{ rv['Rating'] }}/5</p>
+                        <p>{{ rv['Comment'] }}</p>
+                    </li>
+                {% else %}
+                    <li class="list-group-item">No reviews yet.</li>
+                {% endfor %}
+            </ul>
+    
+            <h3>Leave a Review</h3>
+            <form method="post">
+                {{ form.hidden_tag() }}
+                <div class="form-group">
+                    {{ form.rating.label(class="form-label") }}
+                    {{ form.rating(class="form-control") }}
+                </div>
+                <div class="form-group">
+                    {{ form.comment.label(class="form-label") }}
+                    {{ form.comment(class="form-control") }}
+                </div>
+                <button type="submit" class="btn btn-primary">{{ form.submit.label.text }}</button>
+            </form>
+    
+            <a href="{{ url_for('restaurant_detail', restaurant_id=restaurant['RestaurantID']) }}" class="btn btn-secondary mt-3">Back</a>
+        </div>
+    </div>
+</body>
+</html>

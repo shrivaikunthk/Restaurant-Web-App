@@ -1,19 +1,32 @@
 <!-- templates/login.html -->
-
-{% extends "base.html" %}
-{% block title %}Login{% endblock %}
-{% block content %}
-<h2>Login</h2>
-<form method="post">
-    {{ form.hidden_tag() }}
-    <p>
-        {{ form.email.label }}<br>
-        {{ form.email(size=32) }}
-    </p>
-    <p>
-        {{ form.password.label }}<br>
-        {{ form.password(size=32) }}
-    </p>
-    <p>{{ form.submit() }}</p>
-</form>
-{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RestaurantApp</title>
+    <!-- Include Bootstrap CSS for styling (optional) -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+</head>
+<body>
+    {% include 'navbar_simple.html' %}
+    <div class="card">
+        <div class="card-header bg-dark text-white">
+            <h2>Login</h2>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {{ form.hidden_tag() }}
+                <div class="form-group">
+                    {{ form.email.label(class="form-label") }}
+                    {{ form.email(class="form-control") }}
+                </div>
+                <div class="form-group">
+                    {{ form.password.label(class="form-label") }}
+                    {{ form.password(class="form-control") }}
+                </div>
+                <button type="submit" class="btn btn-primary">{{ form.submit.label.text }}</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
