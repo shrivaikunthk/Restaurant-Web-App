@@ -300,7 +300,7 @@ def register():
         conn = get_db_connection()
         try:
             conn.execute('''
-                INSERT INTO User (Name, Email, Password, Phone, Location, Role, Latitude, Longitude)
+                INSERT INTO User (Name, Email, Password, Phone, Location, Longitude, Latitude,Role)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 form.name.data,
@@ -308,9 +308,9 @@ def register():
                 hashed_password,  # Store the hashed password
                 form.phone.data,
                 form.location.data,
-                'customer',  # Default role
+                form.longitude.data,
                 form.latitude.data,
-                form.longitude.data
+                'customer'
             ))
             conn.commit()
             flash('Registration successful! Please log in.', 'success')
