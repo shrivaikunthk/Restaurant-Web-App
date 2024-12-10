@@ -762,7 +762,9 @@ def cart():
                 'item_total': item_total
             })
     
-    return render_template('cart.html', cart_items=detailed_cart, total=total)
+    form = EmptyForm()  # Instantiate the EmptyForm
+    
+    return render_template('cart.html', cart_items=detailed_cart, total=total, form=form)
 
 def get_dish_details(dish_id):
     conn = get_db_connection()
@@ -858,6 +860,49 @@ def profile():
     return render_template('profile.html', form=form)
 
 ### Admin Routes ###
+@app.route('/admin_profile')
+@login_required
+def admin_profile():
+    form = ProfileForm()
+    if form.validate_on_submit():
+        conn = get_db_connection()
+        try:
+            conn.execute('''
+                UPDATE User
+                SET Name = ?, Email = ?, Phone = ?, Location = ?, Latitude = ?, Longitude = ?
+                WHERE UserID = ?
+            ''', (
+                form.name.data,
+                form.email.data,
+                form.phone.data,
+                form.location.data,
+                form.latitude.data,
+                form.longitude.data,
+                current_user.id
+            ))
+            conn.commit()
+            flash('Profile updated successfully.', 'success')
+        except sqlite3.IntegrityError:
+            flash('Email already in use.', 'danger')
+        except Exception as e:
+            flash('An error occurred while updating the profile.', 'danger')
+        finally:
+            conn.close()
+        return redirect(url_for('profile'))
+    else:
+        # Pre-fill the form with current user data
+        conn = get_db_connection()
+        user = conn.execute('SELECT * FROM User WHERE UserID = ?', (current_user.id,)).fetchone()
+        conn.close()
+        if user:
+            form.name.data = user['Name']
+            form.email.data = user['Email']
+            form.phone.data = user['Phone']
+            form.location.data = user['Location']
+            form.latitude.data = user['Latitude']
+            form.longitude.data = user['Longitude']
+
+    return render_template('profile_admin.html', form=form)
 
 @app.route('/admin_home')
 @login_required

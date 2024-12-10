@@ -19,6 +19,7 @@
                 <li>
                     <strong>Date:</strong> {{ res['ReservationDate'] }}<br>
                     <strong>Time:</strong> {{ res['ReservationTime']|format_time }}<br>
+                    <strong>Name:</strong> {{ res['RestaurantName'] }}<br>
                     <strong>Guests:</strong> {{ res['NumberOfGuests'] }}<br>
                     <strong>Requests:</strong> {{ res['SpecialRequests'] or 'None' }}
                 </li>

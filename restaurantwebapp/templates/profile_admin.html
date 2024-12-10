@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dine-Simply</title>
+    <!-- Include Bootstrap CSS for styling (optional) -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+</head>
+<body>
+    {% include 'navbar.html' %}
+    <div class="card">
+        <div class="card-header bg-info text-white">
+            <h2>Profile</h2>
+        </div>
+        <div class="card-body">
+            <p><strong>Name:</strong> {{ current_user.name }}</p>
+            <p><strong>Email:</strong> {{ current_user.email }}</p>
+            <p><strong>Phone:</strong> {{ current_user.phone }}</p>
+            <p><strong>Location:</strong> {{ current_user.location }}</p>
+        </div>
+    </div>
+</body>
+</html>
