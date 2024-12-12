@@ -1,10 +1,8 @@
-<!-- templates/admin_home.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Admin Dashboard</title>
-    <!-- Include Bootstrap CSS for styling (optional) -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
 </head>
 <body>
@@ -15,7 +13,6 @@
             <h3>Managing Restaurant: {{ restaurant['Name'] }}</h3>
         {% endif %}
         <div class="list-group">
-            <!-- Corrected Link: Manage Reservations -->
             <a href="{{ url_for('admin_manage_reservation') }}" class="list-group-item list-group-item-action">
                 Manage Reservations
             </a>

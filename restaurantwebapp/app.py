@@ -1,5 +1,3 @@
-# app.py
-
 import os
 import sqlite3
 from datetime import datetime, date, timedelta
@@ -16,17 +14,16 @@ from forms import (
     AddMenuForm, EditMenuForm, AddDishForm, EditDishForm, EditReviewForm
 )
 
-# Flask app configuration
+#basic flask app
 app = Flask(__name__)
-app.secret_key = 'super_secret_key'  # Replace with a secure key or use environment variables
+app.secret_key = 'super_secret_key' 
 basedir = os.path.abspath(os.path.dirname(__file__))
 db_path = os.path.join(basedir, 'restaurant.sqlite')
 
-# Ensure the database exists
+#database schema, create if not there
 if not os.path.exists(db_path):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
-    # Create tables
     cursor.executescript('''
     CREATE TABLE User (
         UserID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -128,13 +125,12 @@ if not os.path.exists(db_path):
     ''')
     conn.commit()
     conn.close()
-
+#open db
 def get_db_connection():
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     return conn
-
-### Flask-Login Setup ###
+#login
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
@@ -165,7 +161,7 @@ class User(UserMixin):
 def load_user(user_id):
     return User.get(user_id)
 
-### Custom Jinja2 Filters ###
+#jinja 2 formatting stuff
 def format_datetime(value):
     """
     Formats an ISO datetime string to 'YYYY-MM-DD HH:MM:SS'.
@@ -175,7 +171,7 @@ def format_datetime(value):
         dt = datetime.fromisoformat(value)
         return dt.strftime("%Y-%m-%d %H:%M:%S")
     except ValueError:
-        return value  # Return the original value if parsing fails
+        return value  
 
 def format_time(value):
     """
@@ -186,24 +182,22 @@ def format_time(value):
         dt = datetime.strptime(value, '%H:%M')
         return dt.strftime('%I:%M:%S %p')
     except ValueError:
-        return value  # Return the original value if parsing fails
+        return value  
 
-# Register the filters with Jinja2
 app.jinja_env.filters['format_datetime'] = format_datetime
 app.jinja_env.filters['format_time'] = format_time
 
-### Helper Functions ###
+
+#editing rating as restuarant is being rated
 def update_restaurant_rating(restaurant_id):
     conn = get_db_connection()
     try:
-        # Calculate the average rating from the Review table
         avg_rating = conn.execute('''
             SELECT AVG(Rating) as average_rating
             FROM Review
             WHERE RestaurantID = ?
         ''', (restaurant_id,)).fetchone()['average_rating']
         
-        # Update the Restaurant's Rating field
         conn.execute('''
             UPDATE Restaurant
             SET Rating = ?
@@ -211,22 +205,21 @@ def update_restaurant_rating(restaurant_id):
         ''', (avg_rating, restaurant_id))
         conn.commit()
     except Exception as e:
-        # Log the error or handle it as needed
         print(f"Error updating rating for RestaurantID {restaurant_id}: {e}")
     finally:
         conn.close()
-
+#check user level
 def is_restaurant_admin():
     return current_user.is_authenticated and current_user.role == 'restaurant_admin'
-
+#check user level
 def is_super_admin():
     return current_user.is_authenticated and current_user.role == 'super_admin'
 
+#check to make sure restaurant isn't overfilled
 def check_restaurant_capacity(restaurant_id, rdate, rstart, rend, guests):
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # Get restaurant capacity
     cursor.execute('SELECT NumberOfTables, MaxPeoplePerTable FROM Restaurant WHERE RestaurantID = ?', (restaurant_id,))
     restaurant = cursor.fetchone()
     if not restaurant:
@@ -235,7 +228,6 @@ def check_restaurant_capacity(restaurant_id, rdate, rstart, rend, guests):
 
     capacity = restaurant['NumberOfTables'] * restaurant['MaxPeoplePerTable']
 
-    # Find overlapping reservations
     cursor.execute('''
         SELECT NumberOfGuests FROM Reservation
         WHERE RestaurantID = ?
@@ -254,16 +246,14 @@ def check_restaurant_capacity(restaurant_id, rdate, rstart, rend, guests):
     else:
         return False, "Not enough space at the requested time."
 
-### Routes ###
-
+#home
 @app.route('/')
 def index():
     if current_user.is_authenticated:
         return redirect(url_for('home'))
     return redirect(url_for('login'))
 
-### Authentication Routes ###
-
+#login autheincator
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -272,7 +262,6 @@ def login():
         user = conn.execute('SELECT * FROM User WHERE Email = ?', (form.email.data,)).fetchone()
         conn.close()
         if user:
-            # Validate the password
             stored_password = user['Password']
             if check_password_hash(stored_password, form.password.data):
                 user_obj = User(*user)
@@ -285,6 +274,7 @@ def login():
             flash('No account found with that email.', 'danger')
     return render_template('login.html', form=form)
 
+#logout 
 @app.route('/logout')
 @login_required
 def logout():
@@ -292,6 +282,7 @@ def logout():
     flash('You have been logged out.', 'info')
     return redirect(url_for('login'))
 
+#registeration
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegistrationForm()
@@ -305,7 +296,7 @@ def register():
             ''', (
                 form.name.data,
                 form.email.data,
-                hashed_password,  # Store the hashed password
+                hashed_password, 
                 form.phone.data,
                 form.location.data,
                 form.longitude.data,
@@ -321,8 +312,7 @@ def register():
         return redirect(url_for('login'))
     return render_template('register.html', form=form)
 
-### Home Routes ###
-
+#home page
 @app.route('/home')
 @login_required
 def home():
@@ -331,19 +321,15 @@ def home():
     elif is_restaurant_admin():
         return redirect(url_for('admin_home'))
     
-    # Else, proceed with customer dashboard
     conn = get_db_connection()
 
-    # Favorite Restaurants
     favorites = conn.execute('''
         SELECT Restaurant.*
         FROM Favorites
         JOIN Restaurant ON Favorites.RestaurantID = Restaurant.RestaurantID
         WHERE Favorites.UserID = ?
     ''', (current_user.id,)).fetchall()
-    favorite_restaurants = favorites  # This will be a list of restaurant rows
-
-    # Last Order
+    favorite_restaurants = favorites 
     last_order = conn.execute('''
         SELECT * FROM Orders
         WHERE UserID = ?
@@ -353,7 +339,6 @@ def home():
     
     last_order_restaurant_name = None
     if last_order:
-        # Fetch associated dishes to determine restaurant
         dishes = conn.execute('''
             SELECT Restaurant.Name as RestaurantName
             FROM DishOrder
@@ -366,7 +351,6 @@ def home():
         if dishes:
             last_order_restaurant_name = dishes['RestaurantName']
 
-    # Last Review
     last_review = conn.execute('''
         SELECT Review.*, Restaurant.Name as RestaurantName FROM Review
         JOIN Restaurant ON Review.RestaurantID = Restaurant.RestaurantID
@@ -375,7 +359,6 @@ def home():
         LIMIT 1
     ''', (current_user.id,)).fetchone()
 
-    # Upcoming Reservation
     today = date.today().isoformat()
     upcoming_res = conn.execute('''
         SELECT Reservation.*, Restaurant.Name as RestaurantName
@@ -399,8 +382,7 @@ def home():
                            upcoming_res=upcoming_res,
                            form=form)
 
-### Customer Routes ###
-
+#show all restaurants ahh
 @app.route('/restaurants', methods=['GET', 'POST'])
 @login_required
 def restaurants():
@@ -408,7 +390,6 @@ def restaurants():
     restaurants = []
 
     if form.validate_on_submit():
-        # Handle search logic
         name = form.name.data
         cuisine = form.cuisine_type.data
         rating = form.min_rating.data
@@ -435,13 +416,13 @@ def restaurants():
         conn.close()
 
     else:
-        # GET request: Show all restaurants by default
         conn = get_db_connection()
         restaurants = conn.execute('SELECT * FROM Restaurant').fetchall()
         conn.close()
 
     return render_template('restaurants.html', restaurants=restaurants, form=form)
 
+#show restaurant detail based on id
 @app.route('/restaurant/<int:restaurant_id>')
 @login_required
 def restaurant_detail(restaurant_id):
@@ -463,6 +444,7 @@ def restaurant_detail(restaurant_id):
 
     return render_template('restaurant_details.html', restaurant=restaurant, avg_rating=avg_rating, form=form)
 
+#menu for restaurant
 @app.route('/restaurant/<int:restaurant_id>/menu')
 @login_required
 def menu(restaurant_id):
@@ -483,7 +465,7 @@ def view_menu(menu_id):
     dishes = conn.execute('SELECT * FROM Dish WHERE MenuID = ?', (menu_id,)).fetchall()
     conn.close()
     
-    # Attach dish details for cart display
+
     dish_list = []
     for dish in dishes:
         dish_list.append({
@@ -498,6 +480,7 @@ def view_menu(menu_id):
     restaurant_id = menu['RestaurantID']
     return render_template('dish.html', menu=menu, dishes=dish_list, form=form, restaurant_id=restaurant_id)
 
+#reviews
 @app.route('/restaurant/<int:restaurant_id>/reviews', methods=['GET', 'POST'])
 @login_required
 def review(restaurant_id):
@@ -525,9 +508,8 @@ def review(restaurant_id):
             flash("An error occurred while adding the review.", 'danger')
         finally:
             conn.close()
-        return redirect(url_for('review', restaurant_id=restaurant_id))  # Redirect back to the same review page
+        return redirect(url_for('review', restaurant_id=restaurant_id))  
     
-    # For GET request, fetch restaurant and reviews
     conn = get_db_connection()
     restaurant = conn.execute('SELECT * FROM Restaurant WHERE RestaurantID = ?', (restaurant_id,)).fetchone()
     if not restaurant:
@@ -535,7 +517,6 @@ def review(restaurant_id):
         flash("Restaurant not found.", 'danger')
         return redirect(url_for('restaurants'))
     
-    # Fetch reviews with reviewer's name
     reviews = conn.execute('''
         SELECT Review.*, User.Name FROM Review
         JOIN User ON Review.UserID = User.UserID
@@ -546,6 +527,7 @@ def review(restaurant_id):
     conn.close()
     return render_template('review.html', form=form, restaurant=restaurant, reviews=reviews)
 
+#reserving for restaurant
 @app.route('/restaurant/<int:restaurant_id>/reserve', methods=['GET','POST'])
 @login_required
 def make_reservation(restaurant_id):
@@ -561,11 +543,10 @@ def make_reservation(restaurant_id):
         rdate = form.reservation_date.data.isoformat()
         rtime = form.reservation_time.data.strftime("%H:%M")
         rendtime = (datetime.combine(date.today(), form.reservation_time.data) + 
-                    timedelta(hours=2)).strftime("%H:%M")  # Assuming 2-hour reservation
+                    timedelta(hours=2)).strftime("%H:%M")  
         guests = form.number_of_guests.data
         special_req = form.special_requests.data
 
-        # Ensure end_time > start_time
         try:
             start_time_obj = datetime.strptime(rtime, "%H:%M").time()
             end_time_obj = datetime.strptime(rendtime, "%H:%M").time()
@@ -621,22 +602,20 @@ def make_reservation(restaurant_id):
 
     return render_template('reservation_form.html', form=form, restaurant=restaurant)
 
-### Favorites Routes ###
 
+#favoriting restaurant
 @app.route('/favorite/<int:restaurant_id>', methods=['POST'])
 @login_required
 def add_favorite(restaurant_id):
     form = EmptyForm()
     if form.validate_on_submit():
         conn = get_db_connection()
-        # Check if the restaurant exists
         restaurant = conn.execute('SELECT * FROM Restaurant WHERE RestaurantID = ?', (restaurant_id,)).fetchone()
         if not restaurant:
             conn.close()
             flash("Restaurant not found.", 'danger')
             return redirect(url_for('restaurants'))
         
-        # Check if already favorited
         existing = conn.execute('''
             SELECT * FROM Favorites
             WHERE UserID = ? AND RestaurantID = ?
@@ -658,13 +637,13 @@ def add_favorite(restaurant_id):
         flash("Invalid form submission.", 'warning')
     return redirect(url_for('restaurant_detail', restaurant_id=restaurant_id))
 
+#delete favorite
 @app.route('/remove_favorite/<int:restaurant_id>', methods=['POST'])
 @login_required
 def remove_favorite(restaurant_id):
     form = EmptyForm()
     if form.validate_on_submit():
         conn = get_db_connection()
-        # Check if the favorite exists
         favorite = conn.execute('''
             SELECT * FROM Favorites
             WHERE UserID = ? AND RestaurantID = ?
@@ -686,13 +665,11 @@ def remove_favorite(restaurant_id):
         flash("Invalid form submission.", 'warning')
     return redirect(url_for('home'))
 
-### Cart Routes ###
-
+#cart 0 adding to orders
 @app.route('/cart', methods=['GET', 'POST'])
 @login_required
 def cart():
     if request.method == 'POST':
-        # Handle Checkout
         delivery_address = request.form.get('delivery_address')
         if not delivery_address:
             flash('Please provide a delivery address.', 'warning')
@@ -705,7 +682,6 @@ def cart():
         
         conn = get_db_connection()
         try:
-            # Insert into Orders
             order_date = datetime.now().isoformat()
             conn.execute('''
                 INSERT INTO Orders (UserID, OrderDate, OrderTotal, DeliveryAddress)
@@ -713,7 +689,7 @@ def cart():
             ''', (
                 current_user.id,
                 order_date,
-                0.0,  # Placeholder, will update later
+                0.0,  
                 delivery_address
             ))
             order_id = conn.execute('SELECT last_insert_rowid()').fetchone()[0]
@@ -732,10 +708,9 @@ def cart():
                     ))
                     total += dish['Price'] * item['quantity']
         
-            # Update OrderTotal
             conn.execute('UPDATE Orders SET OrderTotal = ? WHERE OrderID = ?', (total, order_id))
             conn.commit()
-            session['cart'] = []  # Clear the cart after checkout
+            session['cart'] = []  
             flash("Order placed successfully!", 'success')
         except Exception as e:
             conn.rollback()
@@ -745,7 +720,6 @@ def cart():
         
         return redirect(url_for('home'))
     
-    # Handle GET request: Display cart
     cart_items = session.get('cart', [])
     detailed_cart = []
     total = 0.0
@@ -762,16 +736,18 @@ def cart():
                 'item_total': item_total
             })
     
-    form = EmptyForm()  # Instantiate the EmptyForm
+    form = EmptyForm()  
     
     return render_template('cart.html', cart_items=detailed_cart, total=total, form=form)
 
+#dish details specifications
 def get_dish_details(dish_id):
     conn = get_db_connection()
     dish = conn.execute('SELECT * FROM Dish WHERE DishID = ?', (dish_id,)).fetchone()
     conn.close()
     return dish
 
+#add something cart
 @app.route('/add_to_cart/<int:dish_id>', methods=['POST'])
 @login_required
 def add_to_cart_route(dish_id):
@@ -785,14 +761,11 @@ def add_to_cart_route(dish_id):
 
     cart = session.get('cart', [])
     
-    # If cart is not empty, check if the restaurant_id matches
     if cart:
         existing_restaurant_id = cart[0].get('restaurant_id')
         if existing_restaurant_id != restaurant_id:
             flash("You can only add dishes from one restaurant at a time. Please clear your cart before adding dishes from a different restaurant.", 'warning')
             return redirect(url_for('cart'))
-
-    # Check if the dish is already in the cart
     for item in cart:
         if item['dish_id'] == dish_id:
             item['quantity'] += quantity
@@ -804,6 +777,7 @@ def add_to_cart_route(dish_id):
     flash('Dish added to cart.', 'success')
     return redirect(url_for('menu', restaurant_id=restaurant_id))
 
+#remove from cart
 @app.route('/remove_from_cart/<int:dish_id>', methods=['POST'])
 @login_required
 def remove_from_cart(dish_id):
@@ -813,8 +787,8 @@ def remove_from_cart(dish_id):
     flash('Dish removed from cart.', 'info')
     return redirect(url_for('cart'))
 
-### Profile Route ###
 
+#user-profile
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
@@ -845,7 +819,6 @@ def profile():
             conn.close()
         return redirect(url_for('profile'))
     else:
-        # Pre-fill the form with current user data
         conn = get_db_connection()
         user = conn.execute('SELECT * FROM User WHERE UserID = ?', (current_user.id,)).fetchone()
         conn.close()
@@ -859,7 +832,7 @@ def profile():
 
     return render_template('profile.html', form=form)
 
-### Admin Routes ###
+#admin-profile
 @app.route('/admin_profile')
 @login_required
 def admin_profile():
@@ -890,7 +863,6 @@ def admin_profile():
             conn.close()
         return redirect(url_for('profile'))
     else:
-        # Pre-fill the form with current user data
         conn = get_db_connection()
         user = conn.execute('SELECT * FROM User WHERE UserID = ?', (current_user.id,)).fetchone()
         conn.close()
@@ -904,6 +876,7 @@ def admin_profile():
 
     return render_template('profile_admin.html', form=form)
 
+#admin-home route
 @app.route('/admin_home')
 @login_required
 def admin_home():
@@ -920,8 +893,7 @@ def admin_home():
     conn.close()
     return render_template('admin_home.html', restaurant=restaurant)
 
-### Admin - Manage Reservations ###
-
+#admin manage reservations
 @app.route('/admin/manage_reservations', methods=['GET', 'POST'])
 @login_required
 def admin_manage_reservation():
@@ -931,10 +903,10 @@ def admin_manage_reservation():
     
     conn = get_db_connection()
     
-    # For super_admin: Optionally filter by restaurant_id
+
     restaurant_id = request.args.get('restaurant_id', type=int)
     page = request.args.get('page', 1, type=int)
-    per_page = 10  # Number of reservations per page
+    per_page = 10  
     
     if is_restaurant_admin():
         current_restaurant_id = current_user.managed_restaurant_id
@@ -948,7 +920,6 @@ def admin_manage_reservation():
         '''
         reservations = conn.execute(query, (current_restaurant_id, per_page, (page - 1) * per_page)).fetchall()
         
-        # For pagination, count total reservations
         total = conn.execute('SELECT COUNT(*) FROM Reservation WHERE RestaurantID = ?', (current_restaurant_id,)).fetchone()[0]
         total_pages = (total + per_page - 1) // per_page
     elif is_super_admin():
@@ -964,7 +935,7 @@ def admin_manage_reservation():
             '''
             reservations = conn.execute(query, (restaurant_id, per_page, (page - 1) * per_page)).fetchall()
             
-            # Count total
+            
             total = conn.execute('SELECT COUNT(*) FROM Reservation WHERE RestaurantID = ?', (restaurant_id,)).fetchone()[0]
             total_pages = (total + per_page - 1) // per_page
         else:
@@ -978,11 +949,11 @@ def admin_manage_reservation():
             '''
             reservations = conn.execute(query, (per_page, (page - 1) * per_page)).fetchall()
             
-            # Count total
+            
             total = conn.execute('SELECT COUNT(*) FROM Reservation').fetchone()[0]
             total_pages = (total + per_page - 1) // per_page
 
-    # Fetch all restaurants for super_admin filtering
+    
     if is_super_admin():
         restaurants = conn.execute('SELECT * FROM Restaurant').fetchall()
     else:
@@ -990,7 +961,6 @@ def admin_manage_reservation():
     
     conn.close()
     
-    # Create a simple pagination object
     class Pagination:
         def __init__(self, page, total_pages):
             self.page = page
@@ -1020,8 +990,8 @@ def admin_manage_reservation():
                            pagination=pagination,
                            form = form)
 
-### Admin - Edit Reservation ###
 
+#edit reservation as restaurant admin
 @app.route('/admin/edit_reservation/<int:reservation_id>', methods=['GET', 'POST'])
 @login_required
 def admin_edit_reservation(reservation_id):
@@ -1036,7 +1006,7 @@ def admin_edit_reservation(reservation_id):
         flash("Reservation not found.", 'danger')
         return redirect(url_for('admin_manage_reservation'))
     
-    # If restaurant admin, ensure the reservation belongs to their restaurant
+    
     if is_restaurant_admin() and reservation['RestaurantID'] != current_user.managed_restaurant_id:
         conn.close()
         flash("Access denied.", 'danger')
@@ -1047,11 +1017,11 @@ def admin_edit_reservation(reservation_id):
         rdate = form.reservation_date.data.isoformat()
         rtime = form.reservation_time.data.strftime("%H:%M")
         rendtime = (datetime.combine(date.today(), form.reservation_time.data) + 
-                    timedelta(hours=2)).strftime("%H:%M")  # Assuming 2-hour reservation
+                    timedelta(hours=2)).strftime("%H:%M")  
         guests = form.number_of_guests.data
         special_req = form.special_requests.data
 
-        # Ensure end_time > start_time
+        
         try:
             start_time_obj = datetime.strptime(rtime, "%H:%M").time()
             end_time_obj = datetime.strptime(rendtime, "%H:%M").time()
@@ -1090,7 +1060,7 @@ def admin_edit_reservation(reservation_id):
             conn.close()
         return redirect(url_for('admin_manage_reservation'))
     
-    # Pre-fill form with existing data
+    
     form.reservation_date.data = datetime.fromisoformat(reservation['ReservationDate']).date()
     form.reservation_time.data = datetime.strptime(reservation['ReservationTime'], "%H:%M").time()
     form.number_of_guests.data = reservation['NumberOfGuests']
@@ -1098,8 +1068,8 @@ def admin_edit_reservation(reservation_id):
     conn.close()
     return render_template('admin_edit_reservation_form.html', form=form, reservation=reservation)
 
-### Admin - Delete Reservation ###
 
+#delete reservation as a restaurant admin 
 @app.route('/admin/delete_reservation/<int:reservation_id>', methods=['POST'])
 @login_required
 def admin_delete_reservation(reservation_id):
@@ -1114,7 +1084,6 @@ def admin_delete_reservation(reservation_id):
         flash("Reservation not found.", 'danger')
         return redirect(url_for('admin_manage_reservation'))
     
-    # If restaurant admin, ensure the reservation belongs to their restaurant
     if is_restaurant_admin() and reservation['RestaurantID'] != current_user.managed_restaurant_id:
         conn.close()
         flash("Access denied.", 'danger')
@@ -1130,8 +1099,7 @@ def admin_delete_reservation(reservation_id):
         conn.close()
     return redirect(url_for('admin_manage_reservation'))
 
-### Admin - Edit Restaurant Details ###
-
+#edit restaurant as restaurant admin
 @app.route('/admin/edit_restaurant', methods=['GET', 'POST'])
 @login_required
 def admin_edit_restaurant():
@@ -1143,11 +1111,9 @@ def admin_edit_restaurant():
     conn = get_db_connection()
     
     if is_restaurant_admin():
-        # Restaurant admin manages one restaurant
         restaurant_id = current_user.managed_restaurant_id
         restaurant = conn.execute('SELECT * FROM Restaurant WHERE RestaurantID = ?', (restaurant_id,)).fetchone()
     elif is_super_admin():
-        # Super admin can choose which restaurant to edit
         restaurant_id = request.args.get('restaurant_id', type=int)
         if not restaurant_id:
             flash("Restaurant ID is required.", 'warning')
@@ -1190,7 +1156,6 @@ def admin_edit_restaurant():
             conn.close()
         return redirect(url_for('admin_edit_restaurant', restaurant_id=restaurant_id))
     
-    # Pre-fill form with existing data
     form.name.data = restaurant['Name']
     form.address.data = restaurant['Address']
     form.city.data = restaurant['City']
@@ -1207,8 +1172,7 @@ def admin_edit_restaurant():
     conn.close()
     return render_template('admin_edit_restaurant.html', form=form, restaurant=restaurant)
 
-### Admin - Manage Menus and Dishes ###
-
+#change menu as restaurant admin
 @app.route('/admin/manage_menu', methods=['GET', 'POST'])
 @login_required
 def admin_manage_menu():
@@ -1227,13 +1191,11 @@ def admin_manage_menu():
             return redirect(url_for('super_admin_home'))
         menus = conn.execute('SELECT * FROM Menu WHERE RestaurantID = ?', (restaurant_id,)).fetchall()
     
-    # For each menu, get its dishes
     menu_dishes = {}
     for menu in menus:
         dishes = conn.execute('SELECT * FROM Dish WHERE MenuID = ?', (menu['MenuID'],)).fetchall()
         menu_dishes[menu['MenuID']] = dishes
     
-    # If super admin, get restaurant details
     if is_super_admin():
         restaurant = conn.execute('SELECT * FROM Restaurant WHERE RestaurantID = ?', (restaurant_id,)).fetchone()
     else:
@@ -1242,8 +1204,7 @@ def admin_manage_menu():
     conn.close()
     return render_template('admin_manage_menu.html', menus=menus, menu_dishes=menu_dishes, restaurant=restaurant)
 
-### Admin - Add Menu ###
-
+#add menu as a restaurant admin
 @app.route('/admin/add_menu', methods=['GET', 'POST'])
 @login_required
 def admin_add_menu():
@@ -1283,8 +1244,7 @@ def admin_add_menu():
     conn.close()
     return render_template('admin_add_menu.html', form=form, restaurant_id=restaurant_id)
 
-### Admin - Edit Menu ###
-
+#edit menu 
 @app.route('/admin/edit_menu/<int:menu_id>', methods=['GET', 'POST'])
 @login_required
 def admin_edit_menu(menu_id):
@@ -1300,7 +1260,6 @@ def admin_edit_menu(menu_id):
         flash("Menu not found.", 'danger')
         return redirect(url_for('admin_manage_menu'))
     
-    # If restaurant admin, ensure the menu belongs to their restaurant
     if is_restaurant_admin() and menu['RestaurantID'] != current_user.managed_restaurant_id:
         conn.close()
         flash("Access denied.", 'danger')
@@ -1325,15 +1284,13 @@ def admin_edit_menu(menu_id):
             conn.close()
         return redirect(url_for('admin_manage_menu', restaurant_id=menu['RestaurantID']))
     
-    # Pre-fill form with existing data
     form.menu_name.data = menu['MenuName']
     form.description.data = menu['Description']
     
     conn.close()
     return render_template('admin_edit_menu.html', form=form, menu=menu)
 
-### Admin - Delete Menu ###
-
+#delete menu as restaurant admin
 @app.route('/admin/delete_menu/<int:menu_id>', methods=['POST'])
 @login_required
 def admin_delete_menu(menu_id):
@@ -1348,14 +1305,12 @@ def admin_delete_menu(menu_id):
         flash("Menu not found.", 'danger')
         return redirect(url_for('admin_manage_menu'))
     
-    # If restaurant admin, ensure the menu belongs to their restaurant
     if is_restaurant_admin() and menu['RestaurantID'] != current_user.managed_restaurant_id:
         conn.close()
         flash("Access denied.", 'danger')
         return redirect(url_for('admin_manage_menu'))
     
     try:
-        # Optionally, delete all dishes under this menu
         conn.execute('DELETE FROM Dish WHERE MenuID = ?', (menu_id,))
         conn.execute('DELETE FROM Menu WHERE MenuID = ?', (menu_id,))
         conn.commit()
@@ -1366,8 +1321,7 @@ def admin_delete_menu(menu_id):
         conn.close()
     return redirect(url_for('admin_manage_menu', restaurant_id=menu['RestaurantID']))
 
-### Admin - Add Dish ###
-
+#add dish to menu as a restaurant admin
 @app.route('/admin/add_dish/<int:menu_id>', methods=['GET', 'POST'])
 @login_required
 def admin_add_dish(menu_id):
@@ -1383,7 +1337,6 @@ def admin_add_dish(menu_id):
         flash("Menu not found.", 'danger')
         return redirect(url_for('admin_manage_menu'))
     
-    # If restaurant admin, ensure the menu belongs to their restaurant
     if is_restaurant_admin() and menu['RestaurantID'] != current_user.managed_restaurant_id:
         conn.close()
         flash("Access denied.", 'danger')
@@ -1411,8 +1364,7 @@ def admin_add_dish(menu_id):
     conn.close()
     return render_template('admin_add_dish.html', form=form, menu=menu)
 
-### Admin - Edit Dish ###
-
+#edit dish as restaurant admin
 @app.route('/admin/edit_dish/<int:dish_id>', methods=['GET', 'POST'])
 @login_required
 def admin_edit_dish(dish_id):
@@ -1430,7 +1382,6 @@ def admin_edit_dish(dish_id):
     
     menu = conn.execute('SELECT * FROM Menu WHERE MenuID = ?', (dish['MenuID'],)).fetchone()
     
-    # If restaurant admin, ensure the dish belongs to their restaurant
     if is_restaurant_admin() and menu['RestaurantID'] != current_user.managed_restaurant_id:
         conn.close()
         flash("Access denied.", 'danger')
@@ -1456,7 +1407,6 @@ def admin_edit_dish(dish_id):
             conn.close()
         return redirect(url_for('admin_manage_menu', restaurant_id=menu['RestaurantID']))
     
-    # Pre-fill form with existing data
     form.dish_name.data = dish['DishName']
     form.description.data = dish['Description']
     form.price.data = dish['Price']
@@ -1464,8 +1414,7 @@ def admin_edit_dish(dish_id):
     conn.close()
     return render_template('admin_edit_dish.html', form=form, dish=dish)
 
-### Admin - Delete Dish ###
-
+#delete dish as restaurant admin
 @app.route('/admin/delete_dish/<int:dish_id>', methods=['POST'])
 @login_required
 def admin_delete_dish(dish_id):
@@ -1482,7 +1431,6 @@ def admin_delete_dish(dish_id):
     
     menu = conn.execute('SELECT * FROM Menu WHERE MenuID = ?', (dish['MenuID'],)).fetchone()
     
-    # If restaurant admin, ensure the dish belongs to their restaurant
     if is_restaurant_admin() and menu['RestaurantID'] != current_user.managed_restaurant_id:
         conn.close()
         flash("Access denied.", 'danger')
@@ -1498,8 +1446,7 @@ def admin_delete_dish(dish_id):
         conn.close()
     return redirect(url_for('admin_manage_menu', restaurant_id=menu['RestaurantID']))
 
-### Admin - Create Restaurant Admin ###
-
+#create restaurant admin as super-admin
 @app.route('/admin/create_restaurant_admin', methods=['GET','POST'])
 @login_required
 def create_restaurant_admin():
@@ -1509,7 +1456,6 @@ def create_restaurant_admin():
     
     form = CreateRestaurantAdminForm()
     conn = get_db_connection()
-    # Populate restaurant choices
     restaurants = conn.execute('SELECT * FROM Restaurant').fetchall()
     form.restaurant_id.choices = [(-1, "None")] + [(r['RestaurantID'], r['Name']) for r in restaurants]
     
@@ -1545,8 +1491,7 @@ def create_restaurant_admin():
     conn.close()
     return render_template('create_restaurant_admin.html', form=form)
 
-### Admin - Manage Reviews ###
-
+#manage reviews as super admin
 @app.route('/admin/manage_reviews', methods=['GET', 'POST'])
 @login_required
 def admin_manage_reviews():
@@ -1564,10 +1509,10 @@ def admin_manage_reviews():
     ''').fetchall()
     conn.close()
     
-    # Instantiate an EmptyForm for CSRF protection in each delete form
     form = EmptyForm()
     return render_template('admin_manage_reviews.html', reviews=reviews, form=form)
 
+#delete review as super admin
 @app.route('/admin/delete_review/<int:review_id>', methods=['POST'])
 @login_required
 def admin_delete_review(review_id):
@@ -1593,8 +1538,7 @@ def admin_delete_review(review_id):
         conn.close()
     return redirect(url_for('admin_manage_reviews'))
 
-### Admin - Add Restaurant ###
-
+#add restaurant as super admin
 @app.route('/admin/add_restaurant', methods=['GET', 'POST'])
 @login_required
 def add_restaurant():
@@ -1633,8 +1577,7 @@ def add_restaurant():
     
     return render_template('add_restaurant.html', form=form)
 
-### Super Admin Home Route ###
-
+#home page super admin
 @app.route('/super_admin_home')
 @login_required
 def super_admin_home():
@@ -1647,8 +1590,7 @@ def super_admin_home():
     conn.close()
     return render_template('super_admin_home.html', restaurants=restaurants)
 
-### Admin - Edit Review (Optional) ###
-
+#edit reviews as super admin
 @app.route('/admin/edit_review/<int:review_id>', methods=['GET','POST'])
 @login_required
 def admin_edit_review(review_id):
@@ -1682,18 +1624,12 @@ def admin_edit_review(review_id):
             conn.close()
         return redirect(url_for('admin_manage_reviews'))
     
-    # Pre-fill form with existing data
     form.rating.data = review['Rating']
     form.comment.data = review['Comment']
     conn.close()
     return render_template('admin_edit_review.html', form=form, review=review)
 
-### Admin - Manage All Users (Optional) ###
-
-# If you wish to allow super admins to manage all users, you can implement additional routes.
-
-### Other Customer Routes ###
-
+#show all orders from the logged in user
 @app.route('/orders_all')
 @login_required
 def orders_all():
@@ -1712,6 +1648,7 @@ def orders_all():
     conn.close()
     return render_template('orders_overall.html', orders=orders)
 
+#show all reviews from the logged in user
 @app.route('/reviews_overall')
 @login_required
 def reviews_overall():
@@ -1726,6 +1663,7 @@ def reviews_overall():
     conn.close()
     return render_template('reviews_overall.html', reviews=reviews)
 
+#show all reservations from the logged in user
 @app.route('/reservations_all')
 @login_required
 def reservations_all():
@@ -1739,10 +1677,6 @@ def reservations_all():
     ''', (current_user.id,)).fetchall()
     conn.close()
     return render_template('reservations_overall.html', reservations=reservations)
-
-# Add other necessary routes here...
-
-### Run the Flask Application ###
 
 if __name__ == '__main__':
     app.run(debug=True)
